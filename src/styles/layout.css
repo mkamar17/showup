@@ -39,11 +39,40 @@
 }
 
 .sidebar__brand {
+  position: relative;
   border: none;
   background: none;
-  padding: 0 8px;
+  width: 100%;
+  min-height: 64px;
+  padding: 0;
   text-align: left;
   color: #fff;
+  overflow: visible;
+}
+
+.sidebar__brand-reveal {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 45px;
+  overflow: hidden;
+  transform: translateX(-50%);
+  transition: width 220ms ease, left 220ms ease, transform 220ms ease;
+}
+
+.sidebar__brand:hover .sidebar__brand-reveal,
+.sidebar__brand:focus-visible .sidebar__brand-reveal {
+  width: 205px;
+  left: 0;
+  transform: translateX(0);
+}
+
+.sidebar__brand-image {
+  display: block;
+  width: 205px;
+  max-width: none;
+  height: auto;
+  border-radius: 10px;
 }
 
 /* Search on the dark sidebar */
@@ -368,13 +397,24 @@
 
   .sidebar__brand {
     order: 1;
-    flex: 1;
+    flex: 0 0 164px;
+    width: 164px;
+    min-height: 0;
     padding: 0;
+    overflow: visible;
   }
 
-  .sidebar .wordmark {
-    color: var(--ink);
-    font-size: 28px !important;
+  .sidebar__brand-reveal {
+    position: static;
+    display: block;
+    width: 164px;
+    overflow: visible;
+    transform: none;
+    transition: none;
+  }
+
+  .sidebar__brand-image {
+    width: 164px;
   }
 
   .sidebar__bottom {
