@@ -1,12 +1,12 @@
 // Admin-only controls to fast-forward the event during a demo.
 import { useState } from 'react'
-import { FastForward, Flag, Zap } from 'lucide-react'
+import { FastForward, Flag, TrainFront, Zap } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { DEMO_GRACE_SPEED } from '../api/constants'
 import ConfirmModal from './ConfirmModal'
 
 export default function DemoControls({ event, phase }) {
-  const { startEventNow, endGracePeriod } = useApp()
+  const { startEventNow, endGracePeriod, createDemoDelayRequest } = useApp()
   const [confirmEnd, setConfirmEnd] = useState(false)
   const started = phase === 'grace' || phase === 'settling'
   const fastSeconds = Math.round((event.graceMinutes * 60) / DEMO_GRACE_SPEED)
@@ -28,6 +28,10 @@ export default function DemoControls({ event, phase }) {
         <button type="button" className="btn btn--danger-soft" onClick={() => setConfirmEnd(true)}>
           <Flag size={16} /> End grace period
           <small>Settle now</small>
+        </button>
+        <button type="button" className="btn btn--soft" onClick={() => createDemoDelayRequest(event.id)} disabled={Boolean(event.lateRequest)}>
+          <TrainFront size={16} /> Demo TfL delay
+          <small>Victoria line</small>
         </button>
       </div>
       {confirmEnd && (

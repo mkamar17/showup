@@ -8,6 +8,7 @@ import { formatDateTime, formatMoney } from '../api/format'
 import ActivityIcon from '../components/ActivityIcon'
 import { PhasePill } from '../components/StatusPill'
 import CheckInPanel from '../components/CheckInPanel'
+import DelayProtectionCard from '../components/DelayProtectionCard'
 import GraceCountdown from '../components/GraceCountdown'
 import MemberList from '../components/MemberList'
 import DemoControls from '../components/DemoControls'
@@ -202,6 +203,9 @@ export default function EventDetailPage() {
           )}
 
           {!event.settled && myMember?.status === 'committed' && <CheckInPanel event={event} phase={phase} />}
+          {!event.settled && (myMember?.status === 'committed' || (isAdmin && event.lateRequest)) && (
+            <DelayProtectionCard event={event} phase={phase} isAdmin={isAdmin} />
+          )}
           {isAdmin && !event.settled && <DemoControls event={event} phase={phase} />}
         </div>
 
