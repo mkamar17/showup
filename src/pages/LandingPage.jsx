@@ -21,23 +21,25 @@ export default function LandingPage() {
 
   return (
     <div className="dashboard">
-      <section className="events-section">
-        <div className="events-section__head">
-          <h2>Your events</h2>
-          <div className="events-section__actions">
-            <div className="segmented segmented--icons" role="tablist" aria-label="Event view">
-              <button type="button" className={view === 'list' ? 'is-active' : ''} onClick={() => setView('list')} aria-label="List view">
-                <List size={16} /> <span>List</span>
-              </button>
-              <button type="button" className={view === 'calendar' ? 'is-active' : ''} onClick={() => setView('calendar')} aria-label="Calendar view">
-                <CalendarDays size={16} /> <span>Calendar</span>
-              </button>
-            </div>
-            <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
-              <Plus size={18} /> <span className="hide-sm">Create event</span>
+      {/* Top bar: title on the left, view toggle + create on the far right */}
+      <header className="events-section__head dashboard__head">
+        <h2>Your events</h2>
+        <div className="events-section__actions">
+          <div className="segmented segmented--icons" role="tablist" aria-label="Event view">
+            <button type="button" className={view === 'list' ? 'is-active' : ''} onClick={() => setView('list')} aria-label="List view">
+              <List size={16} /> <span>List</span>
+            </button>
+            <button type="button" className={view === 'calendar' ? 'is-active' : ''} onClick={() => setView('calendar')} aria-label="Calendar view">
+              <CalendarDays size={16} /> <span>Calendar</span>
             </button>
           </div>
+          <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
+            <Plus size={18} /> <span className="hide-sm">Create event</span>
+          </button>
         </div>
+      </header>
+
+      <section className="events-section">
         {view === 'list' ? <EventList events={myEvents} onCreate={() => setCreating(true)} /> : <EventCalendar events={myEvents} />}
       </section>
 

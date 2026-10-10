@@ -1,12 +1,27 @@
-/* Landing / dashboard: events first, side column on the right */
+/* Landing / dashboard:
+   full-width top bar, then events (left) and side column (right),
+   with the side column lined up with the Upcoming / Past tabs. */
 .dashboard {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 28px;
+  grid-template-areas:
+    'head head'
+    'main side';
+  gap: 20px 28px;
   align-items: start;
 }
 
+.dashboard__head {
+  grid-area: head;
+}
+
+.dashboard > .events-section {
+  grid-area: main;
+  min-width: 0;
+}
+
 .dashboard__side {
+  grid-area: side;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -109,6 +124,7 @@
 }
 
 .events-section__actions {
+  margin-left: auto;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -376,6 +392,10 @@
 @media (max-width: 1200px) {
   .dashboard {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      'head'
+      'main'
+      'side';
   }
 
   .dashboard__side {
