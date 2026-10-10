@@ -1,0 +1,583 @@
+/* Landing / dashboard */
+.dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.dashboard__main {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+
+.dashboard__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr);
+  gap: 24px;
+}
+
+.dashboard__side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 24px;
+}
+
+/* ---------- Overview card ---------- */
+.overview {
+  background: var(--purple);
+  color: #fff;
+  padding: 26px 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.overview__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 28px;
+}
+
+.overview__head select {
+  width: auto;
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.overview__head select option {
+  color: var(--text);
+}
+
+.chart {
+  position: relative;
+  margin: 10px 8px 0;
+}
+
+.chart__svg {
+  width: 100%;
+  height: 170px;
+  display: block;
+}
+
+.chart__dot {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--pink);
+  border: 4px solid #fff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: left 0.3s ease, top 0.3s ease;
+  pointer-events: none;
+}
+
+.chart__tooltip {
+  position: absolute;
+  transform: translate(18px, -110%);
+  background: rgba(43, 43, 61, 0.35);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 0.76rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  transition: left 0.3s ease, top 0.3s ease;
+  pointer-events: none;
+}
+
+.chart__tooltip.is-left {
+  transform: translate(calc(-100% - 18px), -110%);
+}
+
+.chart__tooltip strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.chart__labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 4px 0;
+}
+
+.chart__labels button {
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.76rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.chart__labels button.is-active {
+  background: #fff;
+  color: var(--purple);
+  font-weight: 600;
+}
+
+.overview__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 18px;
+  background: var(--purple-deep);
+}
+
+.overview__stats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 10px 24px;
+}
+
+.overview__stats span {
+  font-size: 0.76rem;
+  opacity: 0.75;
+}
+
+.overview__stats strong {
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+  line-height: 1.2;
+}
+
+.overview__stats small {
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.overview__stats .is-featured {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 28px 28px 0 0;
+  margin-top: -14px;
+  padding-top: 30px;
+}
+
+/* ---------- Spotlight cards ---------- */
+.spotlight {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 24px;
+}
+
+.spot-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  color: #fff;
+  text-align: left;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.15s ease;
+  overflow: hidden;
+}
+
+.spot-card:hover {
+  transform: translateY(-2px);
+}
+
+.spot-card--purple {
+  background: var(--purple);
+}
+
+.spot-card--pink {
+  background: linear-gradient(160deg, #f59ac8 0%, var(--pink) 50%, var(--pink-dark) 100%);
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.spot-card__icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.spot-card__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.spot-card__text strong {
+  font-size: 1.2rem;
+}
+
+.spot-card__text small {
+  opacity: 0.85;
+  font-size: 0.78rem;
+}
+
+.spot-card__big {
+  font-size: 2.1rem !important;
+  line-height: 1.2;
+}
+
+.spot-card__arrow {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- Events section ---------- */
+.events-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.events-section__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.events-section__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.segmented--icons {
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.event-list > .segmented {
+  align-self: flex-start;
+  background: var(--surface);
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 22px 20px;
+  padding-top: 34px;
+}
+
+/* Event card styled like the design's bottom cards */
+.event-card {
+  position: relative;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 50px 22px 20px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.event-card__icon {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 70px;
+  border-radius: 22px;
+  background: var(--purple);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 24px rgba(108, 93, 211, 0.35);
+}
+
+.event-card__head {
+  text-align: center;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.event-card__venue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.event-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.event-card__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* ---------- Calendar ---------- */
+.calendar {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+
+.calendar__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar__weekday {
+  text-align: center;
+  font-size: 0.74rem;
+  color: var(--muted);
+  padding-bottom: 4px;
+}
+
+.calendar__cell {
+  aspect-ratio: 1.2;
+  border: none;
+  border-radius: 14px;
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.calendar__cell.is-blank {
+  background: transparent;
+}
+
+.calendar__cell:hover {
+  background: var(--purple-soft);
+}
+
+.calendar__cell.is-today {
+  box-shadow: inset 0 0 0 2px var(--purple-light);
+}
+
+.calendar__cell.is-selected {
+  background: var(--purple);
+  color: #fff;
+}
+
+.calendar__dots {
+  display: flex;
+  gap: 3px;
+  height: 6px;
+}
+
+.calendar__dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pink);
+}
+
+.calendar__dots i.is-repeat {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--pink);
+}
+
+.calendar__dots i.is-past {
+  background: var(--faint);
+}
+
+.calendar__day {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calendar__event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.calendar__event:hover {
+  border-color: var(--purple);
+}
+
+.calendar__event > span:nth-child(2) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar__event small {
+  color: var(--muted);
+}
+
+.calendar__event-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--purple);
+  color: #fff;
+}
+
+/* ---------- Side panels ---------- */
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.friend-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.friend-rows li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.friend-rows__avatar {
+  position: relative;
+}
+
+.friend-rows__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.friend-rows__text small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.friend-rows__text .faint {
+  color: var(--faint);
+  font-size: 0.72rem;
+}
+
+.live-map p {
+  margin-top: 10px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1200px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard__side {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard__top {
+    grid-template-columns: 1fr;
+  }
+
+  .spotlight {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    gap: 14px;
+  }
+
+  .spot-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .spot-card__icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .spot-card__arrow {
+    display: none;
+  }
+
+  .spot-card__big {
+    font-size: 1.6rem !important;
+  }
+
+  .dashboard__side {
+    grid-template-columns: 1fr;
+  }
+
+  .overview__head {
+    padding: 0 20px;
+  }
+
+  .chart__labels button {
+    padding: 4px 3px;
+    font-size: 0.68rem;
+  }
+
+  .segmented--icons span {
+    display: none;
+  }
+}

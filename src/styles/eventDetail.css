@@ -1,0 +1,336 @@
+.event-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Hero ---------- */
+.event-hero {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  background: var(--purple);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-lg);
+  flex-wrap: wrap;
+}
+
+.event-hero__icon {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+}
+
+.event-hero__info {
+  flex: 1;
+  min-width: 220px;
+}
+
+.event-hero__info h2 {
+  font-size: 1.8rem;
+  margin: 8px 0 10px;
+}
+
+.event-hero__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.event-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  font-size: 0.88rem;
+  opacity: 0.9;
+}
+
+.event-hero__meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.event-hero__admin {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.event-hero__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Grid ---------- */
+.event-detail__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.event-detail__col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* ---------- Countdown ---------- */
+.countdown {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.countdown__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.countdown__time {
+  font-size: 2.6rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--purple);
+}
+
+.countdown small {
+  color: var(--muted);
+}
+
+.countdown--grace {
+  background: linear-gradient(160deg, #f59ac8 0%, var(--pink) 50%, var(--pink-dark) 100%);
+  color: #fff;
+}
+
+.countdown--grace .countdown__label,
+.countdown--grace small,
+.countdown--grace .countdown__time {
+  color: #fff;
+}
+
+/* ---------- Commit card ---------- */
+.commit-card h2 {
+  margin-bottom: 6px;
+}
+
+.commit-card__balances {
+  display: flex;
+  gap: 24px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.commit-card__balances strong {
+  display: block;
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.commit-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.commit-card__held {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.commit-card__held > svg {
+  color: var(--purple);
+}
+
+.commit-card__held > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.commit-card__held strong {
+  font-size: 1.15rem;
+}
+
+/* ---------- Check-in ---------- */
+.checkin {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.checkin .card__head {
+  margin-bottom: 0;
+}
+
+.checkin__message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--pink-soft);
+  color: var(--pink-dark);
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.checkin__message svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.checkin__message.is-ok {
+  background: var(--purple-soft);
+  color: var(--purple-deep);
+}
+
+.checkin__message.is-success {
+  background: var(--green-soft);
+  color: #1d7a41;
+}
+
+.checkin__location {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Members ---------- */
+.members__pot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--purple-soft);
+  color: var(--purple-deep);
+  margin-bottom: 16px;
+}
+
+.members__pot strong {
+  font-size: 1.3rem;
+}
+
+.member-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.member-rows li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.member-rows__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.member-rows__text strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.member-rows__text small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.member-rows__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* ---------- Demo controls ---------- */
+.demo-controls {
+  border: 2px dashed var(--purple-light);
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.demo-controls__buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.demo-controls__buttons .btn {
+  flex-wrap: wrap;
+  white-space: normal;
+}
+
+.demo-controls__buttons small {
+  flex-basis: 100%;
+  font-weight: 400;
+  font-size: 0.74rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 980px) {
+  .event-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .event-hero {
+    padding: 22px;
+  }
+
+  .event-hero__icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+  }
+
+  .event-hero__info h2 {
+    font-size: 1.45rem;
+  }
+
+  .event-hero__actions {
+    width: 100%;
+  }
+
+  .event-hero__actions .btn {
+    flex: 1;
+  }
+
+  .demo-controls__buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .commit-card__actions .btn {
+    flex: 1;
+  }
+}
