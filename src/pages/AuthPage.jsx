@@ -3,8 +3,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import Wordmark from '../components/Wordmark'
 import authBg from '../assets/auth_bg.svg'
+import showupBannerBlack from '../assets/showup-banner-black-cropped.png'
+import showupBannerWhite from '../assets/showup-banner-white-cropped.png'
 import '../styles/auth.css'
 
 export default function AuthPage() {
@@ -43,7 +44,7 @@ export default function AuthPage() {
     <div className="auth">
       <aside className="auth__hero">
         <div className="auth__brand">
-          <Wordmark size={46} light />
+          <img className="auth__brand-logo" src={showupBannerWhite} alt="show up!" />
         </div>
         <img src={authBg} alt="" className="auth__art" />
         <h1>Show up, or pay up.</h1>
@@ -53,7 +54,7 @@ export default function AuthPage() {
       <main className="auth__panel">
         <form className="auth__form" onSubmit={submit} noValidate>
           <div className="auth__brand auth__brand--mobile">
-            <Wordmark size={40} />
+            <img className="auth__brand-logo" src={showupBannerBlack} alt="show up!" />
           </div>
           <h2>{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
           <p className="muted">{mode === 'login' ? 'Log in to see your events.' : 'It only takes a username to get started.'}</p>

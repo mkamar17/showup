@@ -34,9 +34,10 @@
   font-size: 1.4rem;
 }
 
-.auth__brand img {
-  border-radius: 14px;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+.auth__brand-logo {
+  display: block;
+  width: min(280px, 100%);
+  height: auto;
 }
 
 .auth__brand--mobile {
@@ -63,6 +64,8 @@
 }
 
 .auth__form h2 {
+  font-family: var(--font);
+  font-weight: 700;
   font-size: 1.7rem;
 }
 
@@ -86,6 +89,10 @@
 
   .auth__brand--mobile {
     display: flex;
+  }
+
+  .auth__brand-logo {
+    width: 180px;
   }
 
   .auth__panel {
