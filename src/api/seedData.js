@@ -7,6 +7,11 @@ import { toDateInput } from './format'
 const DAY = 86400000
 const MIN = 60000
 
+function refDate(ms) {
+  const d = new Date(ms)
+  return `${String(d.getDate()).padStart(2, '0')}${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
 function nextWeekday(weekday, hour, minute) {
   const d = new Date()
   d.setHours(hour, minute, 0, 0)
@@ -26,9 +31,10 @@ export function createSeedState() {
       email: '',
       bio: '',
       color: '#6c5dd3',
-      balance: 5167,
+      // Mock Starling main-account balance. `starling` is null until the user connects.
+      balance: 41238,
       held: 0,
-      bank: null,
+      starling: null,
       online: true,
       activity: 'Ready to play',
       lastActiveAt: now,
@@ -104,15 +110,16 @@ export function createSeedState() {
     friends: ['u_max', 'u_grisha', 'u_levi'],
     events: [run, fiveASide],
     notifications: [
+      { id: 'ntf_0', text: 'Connect your Starling account so you can commit to events.', link: '/profile?tab=banking', kind: 'invite', read: false, time: now - 5 * MIN },
       { id: 'ntf_1', text: 'Max Stone invited you to Sunday Morning Run (£3.00 commitment).', link: '/events/evt_run', kind: 'invite', read: false, time: now - 2 * DAY },
-      { id: 'ntf_2', text: 'You showed up to Thursday 5-a-side — £6.67 is back in your wallet.', link: '/events/evt_5aside/settlement', kind: 'success', read: true, time: pastTimes.graceEndsAt },
+      { id: 'ntf_2', text: 'You showed up to Thursday 5-a-side — £6.67 went back into your Starling account.', link: '/events/evt_5aside/settlement', kind: 'success', read: true, time: pastTimes.graceEndsAt },
       { id: 'ntf_3', text: 'Levi Pattrick accepted your friend request.', link: '/community', kind: 'info', read: true, time: now - 12 * DAY },
     ],
+    // Starling activity Engine has initiated (newest first).
     transactions: [
-      { id: 'tx_4', type: 'payout', amount: 167, space: 'available', label: 'Share of no-show penalties · Thursday 5-a-side', eventId: 'evt_5aside', time: pastTimes.graceEndsAt },
-      { id: 'tx_3', type: 'refund', amount: 500, space: 'available', label: 'Commitment returned · Thursday 5-a-side', eventId: 'evt_5aside', time: pastTimes.graceEndsAt },
-      { id: 'tx_2', type: 'hold', amount: -500, space: 'available', label: 'Committed to Thursday 5-a-side', eventId: 'evt_5aside', time: now - 13 * DAY },
-      { id: 'tx_1', type: 'topup', amount: 5000, space: 'available', label: 'Welcome top-up (mock)', time: now - 20 * DAY },
+      { id: 'tx_3', type: 'payout', amount: 167, space: 'available', status: 'completed', label: 'Penalty share · Thursday 5-a-side', sub: 'from Grisha', route: 'Faster Payment → Main', reference: 'ENG-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt + MIN },
+      { id: 'tx_2', type: 'refund', amount: 500, space: 'available', status: 'completed', label: 'Commitment returned · Thursday 5-a-side', route: 'Engine Space → Main', reference: 'ENG-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt },
+      { id: 'tx_1', type: 'hold', amount: -500, space: 'available', status: 'completed', label: 'Committed to Thursday 5-a-side', route: 'Main → Engine Space', reference: 'ENG-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: now - 13 * DAY },
     ],
     memories: [
       {

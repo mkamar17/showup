@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Wallet } from 'lucide-react'
+import { Landmark, Wallet } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { formatMoney } from '../api/format'
 import Avatar from './Avatar'
@@ -30,9 +30,14 @@ export default function TopBar() {
       </div>
       <SearchBar />
       <div className="topbar__actions">
-        <button type="button" className="wallet-chip" onClick={() => navigate('/profile?tab=wallet')} title="Available balance">
-          <Wallet size={16} />
-          {formatMoney(me.balance)}
+        <button
+          type="button"
+          className="wallet-chip"
+          onClick={() => navigate(me.starling ? '/profile?tab=wallet' : '/profile?tab=banking')}
+          title={me.starling ? 'Starling balance' : 'Connect Starling'}
+        >
+          {me.starling ? <Wallet size={16} /> : <Landmark size={16} />}
+          {me.starling ? formatMoney(me.balance) : 'Connect bank'}
         </button>
         <NotificationDropdown />
         <button type="button" className="topbar__avatar" onClick={() => navigate('/profile')} aria-label="Your profile">

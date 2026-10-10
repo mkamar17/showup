@@ -2,7 +2,18 @@
 
 export const ME_ID = 'u_me'
 
-export const STORAGE_KEY = 'engine-prototype-state-v1'
+export const STORAGE_KEY = 'engine-prototype-state-v2'
+
+// Mock Starling: how long a Faster Payment shows as "Pending" before "Completed".
+export const PAYMENT_SETTLE_MS = 6000
+
+// What Engine asks permission for when connecting Starling (OAuth consent).
+export const STARLING_PERMISSIONS = [
+  { title: 'See your balance', detail: 'To check you can cover a commitment' },
+  { title: 'Create an “Engine Commitments” Space', detail: 'Where held money sits' },
+  { title: 'Move money in and out of that Space', detail: 'Only when you approve a commitment' },
+  { title: 'Pay attendees if you miss an event', detail: 'Only the amount you committed' },
+]
 
 // Check-in opens this many minutes before an event starts.
 export const CHECKIN_EARLY_MINUTES = 30

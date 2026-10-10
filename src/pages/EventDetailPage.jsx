@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CircleCheck, Clock, Crown, MapPin, Pencil, PoundSterling, Repeat, ShieldCheck, Timer, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CircleCheck, Clock, Crown, Landmark, MapPin, Pencil, PoundSterling, Repeat, ShieldCheck, Timer, Trash2 } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
-import { canCommitInPhase, getPhase } from '../api/eventLogic'
+import { canCommitInPhase, eventReference, getPhase } from '../api/eventLogic'
 import { formatDateTime, formatMoney } from '../api/format'
 import ActivityIcon from '../components/ActivityIcon'
 import { PhasePill } from '../components/StatusPill'
@@ -14,16 +14,19 @@ import DemoControls from '../components/DemoControls'
 import EventForm from '../components/EventForm'
 import ConfirmModal from '../components/ConfirmModal'
 import { AddPeopleModal } from '../components/InviteModal'
+import CommitModal from '../components/CommitModal'
+import StarlingConnectModal from '../components/StarlingConnectModal'
 import '../styles/eventDetail.css'
 
 export default function EventDetailPage() {
   const { eventId } = useParams()
-  const { state, me, now, commit, decline, deleteEvent } = useApp()
+  const { state, me, now, decline, deleteEvent } = useApp()
   const navigate = useNavigate()
   const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [confirmCommit, setConfirmCommit] = useState(false)
   const [addingPeople, setAddingPeople] = useState(false)
+  const [connecting, setConnecting] = useState(false)
 
   const event = state.events.find((e) => e.id === eventId)
   if (!event) {
@@ -135,21 +138,31 @@ export default function EventDetailPage() {
                 <>
                   <h2>Join this event</h2>
                   <p className="muted">
-                    Commit <strong>{formatMoney(event.amount)}</strong>. It moves from your Available balance into Held. Check in on time and
-                    it comes back — plus a share of anyone who doesn’t show.
+                    Commit <strong>{formatMoney(event.amount)}</strong>. It moves from your Starling account into your Engine Commitments
+                    Space. Check in on time and it comes back — plus a share of anyone who doesn’t show.
                   </p>
-                  <div className="commit-card__balances">
-                    <span>
-                      Available <strong>{formatMoney(me.balance)}</strong>
-                    </span>
-                    <span>
-                      Held <strong>{formatMoney(me.held)}</strong>
-                    </span>
-                  </div>
+                  {me.starling ? (
+                    <div className="commit-card__balances">
+                      <span>
+                        Starling ••••{me.starling.accountLast4} <strong>{formatMoney(me.balance)}</strong>
+                      </span>
+                      <span>
+                        Engine Space <strong>{formatMoney(me.held)}</strong>
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="commit-card__connect">
+                      <Landmark size={18} /> Connect your Starling account to commit.
+                    </div>
+                  )}
                   {canCommitInPhase(phase) ? (
                     <div className="commit-card__actions">
-                      <button type="button" className="btn btn--primary btn--lg" onClick={() => setConfirmCommit(true)}>
-                        Join & commit {formatMoney(event.amount)}
+                      <button
+                        type="button"
+                        className="btn btn--primary btn--lg"
+                        onClick={() => (me.starling ? setConfirmCommit(true) : setConnecting(true))}
+                      >
+                        {me.starling ? `Join & commit ${formatMoney(event.amount)}` : 'Connect Starling to commit'}
                       </button>
                       <button type="button" className="btn btn--ghost" onClick={() => decline(event.id)}>
                         Decline
@@ -164,8 +177,11 @@ export default function EventDetailPage() {
                 <div className="commit-card__held">
                   <ShieldCheck size={26} />
                   <div>
-                    <strong>{formatMoney(event.amount)} held</strong>
-                    <span className="muted small">Check in within {event.radius}m of the venue to get it back.</span>
+                    <strong>{formatMoney(event.amount)} held in your Engine Space</strong>
+                    <span className="muted small">
+                      Sitting in your Starling account · ref {eventReference(event)}. Check in within {event.radius}m of the venue
+                      to get it back.
+                    </span>
                   </div>
                 </div>
               )}
@@ -176,7 +192,7 @@ export default function EventDetailPage() {
                     <span className="muted small">Changed your mind?</span>
                   </div>
                   {canCommitInPhase(phase) && (
-                    <button type="button" className="btn btn--soft btn--sm" onClick={() => setConfirmCommit(true)}>
+                    <button type="button" className="btn btn--soft btn--sm" onClick={() => (me.starling ? setConfirmCommit(true) : setConnecting(true))}>
                       Join & commit {formatMoney(event.amount)}
                     </button>
                   )}
@@ -196,15 +212,8 @@ export default function EventDetailPage() {
 
       {editing && <EventForm event={event} onClose={() => setEditing(false)} />}
       {addingPeople && <AddPeopleModal event={event} onClose={() => setAddingPeople(false)} />}
-      {confirmCommit && (
-        <ConfirmModal
-          title={`Commit ${formatMoney(event.amount)} to ${event.title}?`}
-          message={`${formatMoney(event.amount)} moves from Available to Held. If you check in within ${event.graceMinutes} minutes of the start, you get it back. If you don’t show, it’s split between the friends who do.`}
-          confirmLabel={`Commit ${formatMoney(event.amount)}`}
-          onConfirm={() => commit(event.id)}
-          onClose={() => setConfirmCommit(false)}
-        />
-      )}
+      {confirmCommit && <CommitModal event={event} onClose={() => setConfirmCommit(false)} />}
+      {connecting && <StarlingConnectModal onClose={() => setConnecting(false)} onConnected={() => setConfirmCommit(true)} />}
       {confirmDelete && (
         <ConfirmModal
           title={`Delete ${event.title}?`}
