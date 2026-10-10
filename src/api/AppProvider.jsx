@@ -106,7 +106,7 @@ export function AppProvider({ children }) {
           },
         },
       }
-      return addNotification(next, `Welcome to Engine, ${displayName}! Add friends, create an event and commit.`, '/community', 'info')
+      return addNotification(next, `Welcome to Show up!, ${displayName}! Add friends, create an event and commit.`, '/community', 'info')
     })
     return { ok: true }
   }
@@ -159,14 +159,14 @@ export function AppProvider({ children }) {
                 accountName: s.users[ME_ID].name,
                 accountLast4: '5678',
                 sortLast2: '71',
-                spaceName: 'Engine Commitments',
+                spaceName: 'Show up! Commitments',
                 connectedAt: t,
                 lastSyncedAt: t,
               },
             },
           },
         },
-        'Starling connected — your “Engine Commitments” Space is ready.',
+        'Starling connected — your “Show up! Commitments” Space is ready.',
         '/profile?tab=wallet',
         'success',
       ),
@@ -176,7 +176,7 @@ export function AppProvider({ children }) {
 
   function disconnectStarling() {
     if (me.held > 0) {
-      toast(`${formatMoney(me.held)} is still held in your Engine Space — disconnect after your events settle.`, 'error')
+      toast(`${formatMoney(me.held)} is still held in your Show up! Space — disconnect after your events settle.`, 'error')
       return false
     }
     updateMe((u) => ({ ...u, starling: null }))
@@ -309,7 +309,7 @@ export function AppProvider({ children }) {
   }
 
   // "Join & commit £X": moves money from the Starling main account into the
-  // Engine Commitments Space (after the user approves it in the bank app).
+  // Show up! Commitments Space (after the user approves it in the bank app).
   // Returns the payment reference, or null if it couldn't happen.
   function commit(eventId, userId = ME_ID) {
     const ev = state.events.find((e) => e.id === eventId)
@@ -342,7 +342,7 @@ export function AppProvider({ children }) {
         ),
       }
       if (userId === ME_ID) {
-        next = addTransaction(next, { type: 'hold', amount: -e.amount, label: `Committed to ${e.title}`, route: 'Main → Engine Space', reference, eventId })
+        next = addTransaction(next, { type: 'hold', amount: -e.amount, label: `Committed to ${e.title}`, route: 'Main → Show up! Space', reference, eventId })
       } else if (e.adminId === ME_ID) {
         next = addNotification(next, `${u.name} committed ${formatMoney(e.amount)} to ${e.title}.`, `/events/${eventId}`, 'success')
       }

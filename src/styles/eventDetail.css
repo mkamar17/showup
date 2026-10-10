@@ -9,7 +9,7 @@
   display: flex;
   gap: 22px;
   align-items: flex-start;
-  background: var(--purple);
+  background: var(--wine);
   color: #fff;
   border-radius: var(--radius-lg);
   padding: 28px;
@@ -107,7 +107,7 @@
   font-size: 2.6rem;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
-  color: var(--purple);
+  color: var(--wine);
 }
 
 .countdown small {
@@ -115,14 +115,27 @@
 }
 
 .countdown--grace {
-  background: linear-gradient(160deg, #f59ac8 0%, var(--pink) 50%, var(--pink-dark) 100%);
-  color: #fff;
+  background: var(--mustard);
+  color: var(--on-mustard);
 }
 
 .countdown--grace .countdown__label,
 .countdown--grace small,
 .countdown--grace .countdown__time {
-  color: #fff;
+  color: var(--on-mustard);
+}
+
+.countdown--grace .progress--light {
+  background: rgba(44, 42, 41, 0.15);
+}
+
+.countdown--grace .progress--light span {
+  background: var(--ink);
+}
+
+.countdown--grace .pill--light {
+  background: rgba(44, 42, 41, 0.12);
+  color: var(--ink);
 }
 
 /* ---------- Commit card ---------- */
@@ -154,8 +167,8 @@
   margin: 16px 0;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
   font-size: 0.88rem;
   font-weight: 500;
 }
@@ -173,7 +186,7 @@
 }
 
 .commit-card__held > svg {
-  color: var(--purple);
+  color: var(--wine);
 }
 
 .commit-card__held > div {
@@ -203,8 +216,8 @@
   gap: 10px;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: var(--pink-soft);
-  color: var(--pink-dark);
+  background: var(--mustard-soft);
+  color: #8a5f0e;
   font-weight: 500;
   font-size: 0.92rem;
 }
@@ -215,13 +228,13 @@
 }
 
 .checkin__message.is-ok {
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
 }
 
 .checkin__message.is-success {
-  background: var(--green-soft);
-  color: #1d7a41;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .checkin__location {
@@ -237,8 +250,8 @@
   align-items: center;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
   margin-bottom: 16px;
 }
 
@@ -286,7 +299,7 @@
 
 /* ---------- Demo controls ---------- */
 .demo-controls {
-  border: 2px dashed var(--purple-light);
+  border: 2px dashed var(--wine-light);
   box-shadow: none;
   background: rgba(255, 255, 255, 0.7);
 }

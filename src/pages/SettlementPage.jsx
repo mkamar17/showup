@@ -159,7 +159,7 @@ export default function SettlementPage() {
           </table>
           {s.transfers.some((t) => t.kind === 'penalty') && (
             <p className="muted small">
-              Refunds come straight back from each person’s Engine Space. Penalties are sent by Faster Payment and split equally; any leftover
+              Refunds come straight back from each person’s Show up! Space. Penalties are sent by Faster Payment and split equally; any leftover
               penny goes to one attendee so the totals match exactly. Reference {eventReference(event)}.
             </p>
           )}
@@ -172,7 +172,7 @@ export default function SettlementPage() {
               <tr>
                 <th>Member</th>
                 <th className="num">Starling main</th>
-                <th className="num">Engine Space</th>
+                <th className="num">Show up! Space</th>
               </tr>
             </thead>
             <tbody>
@@ -210,7 +210,7 @@ export default function SettlementPage() {
       </div>
 
       {nextInSeries && (
-        <Link to={`/events/${nextInSeries.id}`} className="banner banner--purple">
+        <Link to={`/events/${nextInSeries.id}`} className="banner banner--wine">
           <Repeat size={20} />
           <span>
             <strong>Next {event.title}</strong> is scheduled for {formatDateTime(nextInSeries.startAt)}

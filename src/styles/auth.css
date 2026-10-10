@@ -6,7 +6,7 @@
 }
 
 .auth__hero {
-  background: linear-gradient(150deg, #8b7ff0 0%, var(--purple) 45%, var(--purple-deep) 100%);
+  background: var(--wine);
   color: #fff;
   padding: 48px;
   display: flex;
@@ -41,7 +41,7 @@
 
 .auth__brand--mobile {
   display: none;
-  color: var(--purple);
+  color: var(--wine);
 }
 
 .auth__art {

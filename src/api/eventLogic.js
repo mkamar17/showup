@@ -121,16 +121,16 @@ export function settleEventInState(state, eventId, now = Date.now()) {
   if (result.committed.includes(ME_ID)) {
     const payout = result.payouts[ME_ID] || 0
     if (result.refundedAll) {
-      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Refunded — nobody checked in · ${event.title}`, route: 'Engine Space → Main', reference, eventId }, now)
+      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Refunded — nobody checked in · ${event.title}`, route: 'Show up! Space → Main', reference, eventId }, now)
       next = addNotification(next, `${event.title}: nobody checked in, so everyone was refunded.`, link, 'info', now)
     } else if (payout > 0) {
-      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Commitment returned · ${event.title}`, route: 'Engine Space → Main', reference, eventId }, now)
+      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Commitment returned · ${event.title}`, route: 'Show up! Space → Main', reference, eventId }, now)
       if (payout > event.amount) {
         next = addTransaction(next, { type: 'payout', amount: payout - event.amount, label: `Penalty share · ${event.title}`, sub: `from ${names(result.noShows)}`, route: 'Faster Payment → Main', status: 'pending', completesAt: pendingUntil, reference, eventId }, now)
       }
       next = addNotification(next, `You showed up to ${event.title} — ${formatMoney(event.amount)} is back in your Starling account${payout > event.amount ? `, plus ${formatMoney(payout - event.amount)} on its way` : ''}.`, link, 'success', now)
     } else {
-      next = addTransaction(next, { type: 'forfeit', amount: -event.amount, space: 'held', label: `Missed ${event.title} — paid to attendees`, sub: `to ${names(result.attendees)}`, route: 'Engine Space → Faster Payment', status: 'pending', completesAt: pendingUntil, reference, eventId }, now)
+      next = addTransaction(next, { type: 'forfeit', amount: -event.amount, space: 'held', label: `Missed ${event.title} — paid to attendees`, sub: `to ${names(result.attendees)}`, route: 'Show up! Space → Faster Payment', status: 'pending', completesAt: pendingUntil, reference, eventId }, now)
       next = addNotification(next, `You missed ${event.title}. Your ${formatMoney(event.amount)} is being paid to the friends who came.`, link, 'warning', now)
     }
   } else if (event.adminId === ME_ID) {
@@ -199,7 +199,7 @@ export function refundEventInState(state, event, reason) {
     const u = users[id]
     users[id] = { ...u, held: Math.max(0, u.held - event.amount), balance: u.balance + event.amount }
     if (id === ME_ID) {
-      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `${reason} · ${event.title}`, route: 'Engine Space → Main', reference: eventReference(event), eventId: event.id })
+      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `${reason} · ${event.title}`, route: 'Show up! Space → Main', reference: eventReference(event), eventId: event.id })
     }
   })
   return { ...next, users }

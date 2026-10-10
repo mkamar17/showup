@@ -9,7 +9,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 20px;
-  background: var(--purple);
+  background: var(--wine);
   color: #fff;
   border-radius: var(--radius-lg);
   padding: 28px;
@@ -37,8 +37,8 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 0 8px rgba(61, 190, 110, 0.25);
+  background: var(--sage);
+  box-shadow: 0 0 0 8px rgba(163, 184, 153, 0.4);
 }
 
 .settlement__summary {

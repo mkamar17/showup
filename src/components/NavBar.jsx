@@ -1,7 +1,13 @@
+// Sidebar: brand, search, navigation, balance, notifications and profile.
+// On mobile it becomes a compact header plus a bottom tab bar.
 import { NavLink, useNavigate } from 'react-router-dom'
-import { House, Images, LogOut, User, Users } from 'lucide-react'
+import { House, Images, Landmark, LogOut, User, Users, Wallet } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import logo from '../assets/logo.svg'
+import { formatMoney } from '../api/format'
+import Avatar from './Avatar'
+import SearchBar from './SearchBar'
+import NotificationDropdown from './NotificationDropdown'
+import Wordmark from './Wordmark'
 
 const LINKS = [
   { to: '/', label: 'Home', icon: House, end: true },
@@ -11,36 +17,69 @@ const LINKS = [
 ]
 
 export default function NavBar() {
-  const { logout } = useApp()
+  const { me, logout } = useApp()
   const navigate = useNavigate()
 
   return (
-    <nav className="sidebar" aria-label="Main">
-      <button type="button" className="sidebar__logo" onClick={() => navigate('/')} aria-label="Engine home">
-        <img src={logo} alt="" width="44" height="44" />
+    <aside className="sidebar">
+      <button type="button" className="sidebar__brand" onClick={() => navigate('/')} aria-label="show up! home">
+        <Wordmark size={34} light />
       </button>
-      <ul className="sidebar__links">
-        {LINKS.map(({ to, label, icon: Icon, end }) => (
-          <li key={to}>
-            <NavLink to={to} end={end} className={({ isActive }) => `sidebar__link${isActive ? ' is-active' : ''}`} title={label}>
-              <Icon size={22} />
-              <span className="sidebar__label">{label}</span>
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        className="sidebar__link sidebar__logout"
-        title="Log out"
-        onClick={() => {
-          logout()
-          navigate('/login')
-        }}
-      >
-        <LogOut size={22} />
-        <span className="sidebar__label">Log out</span>
-      </button>
-    </nav>
+
+      <div className="sidebar__search">
+        <SearchBar />
+      </div>
+
+      <nav className="sidebar__nav" aria-label="Main">
+        <ul className="sidebar__links">
+          {LINKS.map(({ to, label, icon: Icon, end }) => (
+            <li key={to}>
+              <NavLink to={to} end={end} className={({ isActive }) => `sidebar__link${isActive ? ' is-active' : ''}`}>
+                <Icon size={20} />
+                <span className="sidebar__label">{label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div className="sidebar__bottom">
+        <button
+          type="button"
+          className="sidebar__balance"
+          onClick={() => navigate(me.starling ? '/profile?tab=wallet' : '/profile?tab=banking')}
+        >
+          {me.starling ? <Wallet size={18} /> : <Landmark size={18} />}
+          <span className="sidebar__balance-text">
+            <small>{me.starling ? 'Starling balance' : 'No bank connected'}</small>
+            <strong>{me.starling ? formatMoney(me.balance) : 'Connect Starling'}</strong>
+          </span>
+        </button>
+
+        <NotificationDropdown />
+
+        <div className="sidebar__profile">
+          <button type="button" className="sidebar__me" onClick={() => navigate('/profile')}>
+            <Avatar user={me} size={40} />
+            <span className="sidebar__me-text">
+              <strong>{me.name}</strong>
+              <small>@{me.username}</small>
+            </span>
+          </button>
+          <button
+            type="button"
+            className="sidebar__logout"
+            onClick={() => {
+              logout()
+              navigate('/login')
+            }}
+            aria-label="Log out"
+            title="Log out"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
+      </div>
+    </aside>
   )
 }

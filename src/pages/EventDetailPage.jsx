@@ -138,7 +138,7 @@ export default function EventDetailPage() {
                 <>
                   <h2>Join this event</h2>
                   <p className="muted">
-                    Commit <strong>{formatMoney(event.amount)}</strong>. It moves from your Starling account into your Engine Commitments
+                    Commit <strong>{formatMoney(event.amount)}</strong>. It moves from your Starling account into your Show up! Commitments
                     Space. Check in on time and it comes back — plus a share of anyone who doesn’t show.
                   </p>
                   {me.starling ? (
@@ -147,7 +147,7 @@ export default function EventDetailPage() {
                         Starling ••••{me.starling.accountLast4} <strong>{formatMoney(me.balance)}</strong>
                       </span>
                       <span>
-                        Engine Space <strong>{formatMoney(me.held)}</strong>
+                        Show up! Space <strong>{formatMoney(me.held)}</strong>
                       </span>
                     </div>
                   ) : (
@@ -177,7 +177,7 @@ export default function EventDetailPage() {
                 <div className="commit-card__held">
                   <ShieldCheck size={26} />
                   <div>
-                    <strong>{formatMoney(event.amount)} held in your Engine Space</strong>
+                    <strong>{formatMoney(event.amount)} held in your Show up! Space</strong>
                     <span className="muted small">
                       Sitting in your Starling account · ref {eventReference(event)}. Check in within {event.radius}m of the venue
                       to get it back.

@@ -33,7 +33,7 @@
   gap: 16px;
   padding: 18px;
   border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-deep) 100%);
+  background: linear-gradient(135deg, var(--wine) 0%, var(--wine-deep) 100%);
   color: #fff;
   flex-wrap: wrap;
 }
@@ -104,14 +104,14 @@
   opacity: 0.8;
 }
 
-.space--purple {
-  background: var(--purple);
+.space--wine {
+  background: var(--wine);
   color: #fff;
 }
 
-.space--pink {
-  background: linear-gradient(160deg, #f59ac8 0%, var(--pink) 60%, var(--pink-dark) 100%);
-  color: #fff;
+.space--mustard {
+  background: var(--mustard);
+  color: var(--on-mustard);
 }
 
 .space--white {
@@ -119,7 +119,7 @@
 }
 
 .space--white svg {
-  color: var(--green);
+  color: var(--sage);
 }
 
 .wallet__actions {
@@ -155,8 +155,8 @@
 }
 
 .tx-rows__icon.is-in {
-  background: var(--green-soft);
-  color: #23934e;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .tx-rows__icon.is-out {

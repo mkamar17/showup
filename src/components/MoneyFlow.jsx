@@ -3,7 +3,7 @@ import { CircleCheck, Clock, Lock, Send } from 'lucide-react'
 import '../styles/starling.css'
 
 const STEPS = [
-  { icon: Lock, title: 'Commit', text: 'Approve in the Starling app. The amount moves from your main account into your Engine Space.', api: 'PUT savings-goals/…/add-money' },
+  { icon: Lock, title: 'Commit', text: 'Approve in the Starling app. The amount moves from your main account into your Show up! Space.', api: 'PUT savings-goals/…/add-money' },
   { icon: Clock, title: 'Held', text: 'It stays in your Space until the event’s grace period ends.', api: 'webhook: transfer settled' },
   { icon: CircleCheck, title: 'Check in', text: 'Your location is checked against the venue radius. No money moves.', api: 'no bank call' },
   { icon: Send, title: 'Settle', text: null, api: 'withdraw-money · payments/local' },

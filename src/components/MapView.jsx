@@ -56,7 +56,7 @@ export default function MapView({ venue, radius = 150, user, height = 260, onPic
             <Circle
               center={[venue.lat, venue.lng]}
               radius={radius}
-              pathOptions={{ color: '#6c5dd3', fillColor: '#6c5dd3', fillOpacity: 0.12, weight: 2, dashArray: '6 6' }}
+              pathOptions={{ color: '#7d2a3d', fillColor: '#7d2a3d', fillOpacity: 0.12, weight: 2, dashArray: '6 6' }}
             />
             <Marker position={[venue.lat, venue.lng]} icon={venueIcon}>
               <Tooltip direction="top" offset={[0, -28]}>
@@ -72,7 +72,7 @@ export default function MapView({ venue, radius = 150, user, height = 260, onPic
             pathOptions={{
               color: '#fff',
               weight: 3,
-              fillColor: inRadius ? '#3dbe6e' : '#f178b6',
+              fillColor: inRadius ? '#56704b' : '#eab143',
               fillOpacity: 1,
             }}
           >

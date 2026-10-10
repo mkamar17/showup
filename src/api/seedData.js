@@ -30,7 +30,7 @@ export function createSeedState() {
       name: 'Demo User',
       email: '',
       bio: '',
-      color: '#6c5dd3',
+      color: '#7d2a3d',
       // Mock Starling main-account balance. `starling` is null until the user connects.
       balance: 41238,
       held: 0,
@@ -39,12 +39,12 @@ export function createSeedState() {
       activity: 'Ready to play',
       lastActiveAt: now,
     },
-    u_max: { id: 'u_max', username: 'maxstone', name: 'Max Stone', color: '#4cb3e6', balance: 4867, held: 300, online: true, activity: 'Weekly Bicycle', lastActiveAt: now - 15 * MIN },
-    u_grisha: { id: 'u_grisha', username: 'grishajack', name: 'Grisha Jack', color: '#e39b4b', balance: 4200, held: 300, online: false, activity: 'Slow Jogging', lastActiveAt: now - 22 * MIN },
-    u_levi: { id: 'u_levi', username: 'levipattrick', name: 'Levi Pattrick', color: '#3dbe6e', balance: 5166, held: 0, online: true, activity: 'Morning Swim', lastActiveAt: now - 33 * MIN },
-    u_cody: { id: 'u_cody', username: 'codybryan', name: 'Cody Bryan', color: '#e2525c', balance: 5000, held: 0, online: true, activity: 'Quick Sprint', lastActiveAt: now - 41 * MIN },
-    u_ella: { id: 'u_ella', username: 'ellamoss', name: 'Ella Moss', color: '#f178b6', balance: 5000, held: 0, online: false, activity: 'Hiking', lastActiveAt: now - 70 * MIN },
-    u_sam: { id: 'u_sam', username: 'samokafor', name: 'Sam Okafor', color: '#8b7ff0', balance: 5000, held: 0, online: true, activity: 'Gym session', lastActiveAt: now - 5 * MIN },
+    u_max: { id: 'u_max', username: 'maxstone', name: 'Max Stone', color: '#56704b', balance: 4867, held: 300, online: true, activity: 'Weekly Bicycle', lastActiveAt: now - 15 * MIN },
+    u_grisha: { id: 'u_grisha', username: 'grishajack', name: 'Grisha Jack', color: '#c99020', balance: 4200, held: 300, online: false, activity: 'Slow Jogging', lastActiveAt: now - 22 * MIN },
+    u_levi: { id: 'u_levi', username: 'levipattrick', name: 'Levi Pattrick', color: '#6e8a62', balance: 5166, held: 0, online: true, activity: 'Morning Swim', lastActiveAt: now - 33 * MIN },
+    u_cody: { id: 'u_cody', username: 'codybryan', name: 'Cody Bryan', color: '#a8473f', balance: 5000, held: 0, online: true, activity: 'Quick Sprint', lastActiveAt: now - 41 * MIN },
+    u_ella: { id: 'u_ella', username: 'ellamoss', name: 'Ella Moss', color: '#b98591', balance: 5000, held: 0, online: false, activity: 'Hiking', lastActiveAt: now - 70 * MIN },
+    u_sam: { id: 'u_sam', username: 'samokafor', name: 'Sam Okafor', color: '#4f4945', balance: 5000, held: 0, online: true, activity: 'Gym session', lastActiveAt: now - 5 * MIN },
   }
 
   // 1) Upcoming: Max invited you to a weekly run.
@@ -115,11 +115,11 @@ export function createSeedState() {
       { id: 'ntf_2', text: 'You showed up to Thursday 5-a-side — £6.67 went back into your Starling account.', link: '/events/evt_5aside/settlement', kind: 'success', read: true, time: pastTimes.graceEndsAt },
       { id: 'ntf_3', text: 'Levi Pattrick accepted your friend request.', link: '/community', kind: 'info', read: true, time: now - 12 * DAY },
     ],
-    // Starling activity Engine has initiated (newest first).
+    // Starling activity Show up! has initiated (newest first).
     transactions: [
-      { id: 'tx_3', type: 'payout', amount: 167, space: 'available', status: 'completed', label: 'Penalty share · Thursday 5-a-side', sub: 'from Grisha', route: 'Faster Payment → Main', reference: 'ENG-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt + MIN },
-      { id: 'tx_2', type: 'refund', amount: 500, space: 'available', status: 'completed', label: 'Commitment returned · Thursday 5-a-side', route: 'Engine Space → Main', reference: 'ENG-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt },
-      { id: 'tx_1', type: 'hold', amount: -500, space: 'available', status: 'completed', label: 'Committed to Thursday 5-a-side', route: 'Main → Engine Space', reference: 'ENG-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: now - 13 * DAY },
+      { id: 'tx_3', type: 'payout', amount: 167, space: 'available', status: 'completed', label: 'Penalty share · Thursday 5-a-side', sub: 'from Grisha', route: 'Faster Payment → Main', reference: 'SU-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt + MIN },
+      { id: 'tx_2', type: 'refund', amount: 500, space: 'available', status: 'completed', label: 'Commitment returned · Thursday 5-a-side', route: 'Show up! Space → Main', reference: 'SU-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt },
+      { id: 'tx_1', type: 'hold', amount: -500, space: 'available', status: 'completed', label: 'Committed to Thursday 5-a-side', route: 'Main → Show up! Space', reference: 'SU-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: now - 13 * DAY },
     ],
     memories: [
       {

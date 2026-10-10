@@ -19,7 +19,7 @@ export default function CheckInPanel({ event, phase }) {
   if (checkedIn) {
     message = `Checked in at ${formatTime(member.checkedInAt)}${member.checkInDistance != null ? ` · ${formatDistance(member.checkInDistance)} from the venue` : ''}. Your commitment comes back after settlement.`
   } else if (!location) {
-    message = locationStatus === 'locating' ? 'Finding your location…' : 'Share your location so Engine can confirm you’re at the venue.'
+    message = locationStatus === 'locating' ? 'Finding your location…' : 'Share your location so Show up! can confirm you’re at the venue.'
   } else if (!inRadius) {
     message = `You’re ${formatDistance(distance)} away — check-in unlocks within ${event.radius}m.`
   } else if (!windowOpen) {
@@ -32,7 +32,7 @@ export default function CheckInPanel({ event, phase }) {
     <section className="card checkin">
       <div className="card__head">
         <h2>Check in</h2>
-        <span className={`pill ${checkedIn ? 'pill--success' : inRadius ? 'pill--success-soft' : 'pill--pink-soft'}`}>
+        <span className={`pill ${checkedIn ? 'pill--success' : inRadius ? 'pill--success-soft' : 'pill--mustard-soft'}`}>
           {checkedIn ? 'Checked in' : inRadius ? 'Inside radius' : location ? 'Outside radius' : 'Location off'}
         </span>
       </div>

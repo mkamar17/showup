@@ -56,10 +56,10 @@ export default function StarlingBar({ compact = false }) {
         </button>
       )}
       {showPerms && (
-        <Modal title="What Engine can do" onClose={() => setShowPerms(false)}>
+        <Modal title="What Show up! can do" onClose={() => setShowPerms(false)}>
           <PermissionList />
           <p className="muted small" style={{ marginTop: 14 }}>
-            You can also revoke Engine’s access at any time from the Starling app. Connected {relativeTime(sb.connectedAt, now)}.
+            You can also revoke Show up!’s access at any time from the Starling app. Connected {relativeTime(sb.connectedAt, now)}.
           </p>
         </Modal>
       )}

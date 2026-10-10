@@ -97,7 +97,7 @@ function BankingTab() {
             </div>
           </dl>
           <h3 className="card__title" style={{ marginTop: 22 }}>
-            Engine can
+            Show up! can
           </h3>
           <PermissionList />
           <div className="form-actions" style={{ marginTop: 18 }}>
@@ -111,7 +111,7 @@ function BankingTab() {
           <h3 className="card__title">Why connect a bank?</h3>
           <p className="muted small" style={{ marginBottom: 16 }}>
             When you commit to an event, the money moves into a Space inside your own Starling account and stays there until the event is
-            settled. Engine asks for these permissions:
+            settled. Show up! asks for these permissions:
           </p>
           <PermissionList />
         </section>
@@ -123,7 +123,7 @@ function BankingTab() {
       {confirmDisconnect && (
         <ConfirmModal
           title="Disconnect Starling?"
-          message="You won’t be able to commit to events until you reconnect. Money still held in your Engine Space must settle first."
+          message="You won’t be able to commit to events until you reconnect. Money still held in your Show up! Space must settle first."
           confirmLabel="Disconnect"
           danger
           onConfirm={disconnectStarling}
@@ -155,13 +155,13 @@ function WalletTab() {
           <strong className="space-card__amount">{sb ? formatMoney(me.balance) : '—'}</strong>
           <small className="muted">{sb ? `Live balance · synced ${relativeTime(sb.lastSyncedAt, now)}` : 'Connect Starling to see your balance'}</small>
           <span className="space-card__tag">
-            <Eye size={12} /> Read-only in Engine
+            <Eye size={12} /> Read-only in Show up!
           </span>
         </div>
 
-        <div className="space-card space-card--pink">
+        <div className="space-card space-card--mustard">
           <span className="space-card__label">
-            <Lock size={18} /> Engine Commitments Space
+            <Lock size={18} /> Show up! Commitments Space
           </span>
           <strong className="space-card__amount">{formatMoney(me.held)}</strong>
           <small>A Space inside your Starling account · held until settlement</small>
@@ -179,7 +179,7 @@ function WalletTab() {
           </div>
         </div>
 
-        <div className="space-card space-card--purple">
+        <div className="space-card space-card--wine">
           <span className="space-card__label">
             <ArrowDownLeft size={18} /> Won from no-shows
           </span>
@@ -196,7 +196,7 @@ function WalletTab() {
 
       <section className="card bank-actions">
         <span className="bank-actions__note">
-          <ShieldCheck size={16} /> Engine can only move money into and out of your Engine Space, and pay attendees after an event you
+          <ShieldCheck size={16} /> Show up! can only move money into and out of your Show up! Space, and pay attendees after an event you
           committed to.
         </span>
         <button type="button" className="btn btn--ghost btn--sm" onClick={() => demoAddFunds(2000)} disabled={!sb} title="Demo only">
@@ -216,7 +216,7 @@ function WalletTab() {
       {confirmDisconnect && (
         <ConfirmModal
           title="Disconnect Starling?"
-          message="You won’t be able to commit to events until you reconnect. Money still held in your Engine Space must settle first."
+          message="You won’t be able to commit to events until you reconnect. Money still held in your Show up! Space must settle first."
           confirmLabel="Disconnect"
           danger
           onConfirm={disconnectStarling}
