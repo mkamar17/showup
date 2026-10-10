@@ -1,5 +1,8 @@
 /* App shell: sidebar (brand, search, nav, balance, notifications, profile) */
 .app-shell {
+  --sb-collapsed: 84px; /* 48px of controls + 18px padding either side */
+  --sb-expanded: 260px;
+  --sb-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   gap: 28px;
   min-height: 100vh;
@@ -57,14 +60,10 @@
   width: 45px;
   overflow: hidden;
   transform: translateX(-50%);
-  transition: width 220ms ease, left 220ms ease, transform 220ms ease;
-}
-
-.sidebar__brand:hover .sidebar__brand-reveal,
-.sidebar__brand:focus-visible .sidebar__brand-reveal {
-  width: 205px;
-  left: 0;
-  transform: translateX(0);
+  transition:
+    width 220ms ease,
+    left 220ms ease,
+    transform 220ms ease;
 }
 
 .sidebar__brand-image {
@@ -87,7 +86,7 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-.sidebar .searchbar input[type='search'] {
+.sidebar .searchbar input[type="search"] {
   width: 100%;
   border: none;
   border-radius: 0;
@@ -97,7 +96,7 @@
   outline: none;
 }
 
-.sidebar .searchbar input[type='search']::placeholder {
+.sidebar .searchbar input[type="search"]::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
@@ -131,7 +130,9 @@
   color: rgba(255, 255, 255, 0.72);
   font-weight: 500;
   font-size: 0.92rem;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .sidebar__link:hover {
@@ -234,6 +235,7 @@
   place-items: center;
   width: 38px;
   height: 38px;
+  padding: 0;
   border-radius: 12px;
   border: none;
   background: transparent;
@@ -364,10 +366,208 @@
   background: var(--mustard);
 }
 
-/* The sidebar must not clip the notification panel on desktop */
+.sidebar__toggle {
+  display: none;
+}
+
+/* ---------- Desktop: collapsible rail ----------
+   .sidebar-slot reserves the layout width (rail, or full when pinned).
+   The sidebar inside it grows past the slot on hover/focus, floating over
+   the page, so only pinning pushes the content. */
 @media (min-width: 901px) {
+  .sidebar-slot {
+    flex-shrink: 0;
+    width: var(--sb-collapsed);
+    transition: width 0.25s var(--sb-ease);
+  }
+
+  .sidebar-slot.is-pinned {
+    width: var(--sb-expanded);
+  }
+
   .sidebar {
+    width: var(--sb-collapsed);
+    /* The sidebar must not clip the notification panel or the toggle handle */
     overflow: visible;
+    transition:
+      width 0.25s var(--sb-ease),
+      box-shadow 0.25s;
+  }
+
+  .sidebar.is-expanded {
+    width: var(--sb-expanded);
+  }
+
+  /* Peeking (hover/focus, not pinned) floats above the page: lift it */
+  .sidebar.is-expanded:not(.is-pinned) {
+    box-shadow: 0 28px 64px rgba(44, 42, 41, 0.28);
+  }
+
+  /* Brand grows from the icon to the full banner as the sidebar expands */
+  .sidebar.is-expanded .sidebar__brand-reveal {
+    width: 205px;
+    left: 0;
+    transform: translateX(0);
+  }
+
+  /* Edge handle to pin / unpin: icon-sized, centred on the logo
+     (26px top padding + half of the 64px brand row - half its own height) */
+  .sidebar__toggle {
+    position: absolute;
+    top: 48px;
+    right: -10px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 4px rgba(44, 42, 41, 0.25);
+    transition:
+      background 0.15s,
+      color 0.15s,
+      transform 0.15s;
+  }
+
+  /* Keep a comfortable click target around the small icon */
+  .sidebar__toggle::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
+
+  .sidebar__toggle:hover {
+    background: var(--mustard);
+    transform: scale(1.08);
+  }
+
+  .sidebar__toggle:focus-visible {
+    outline: 2px solid var(--mustard);
+    outline-offset: 2px;
+  }
+
+  /* Rows never wrap or spill: the rail simply clips them while it grows */
+  .sidebar__link,
+  .sidebar__balance,
+  .sidebar__me,
+  .notif__trigger {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .sidebar__link svg,
+  .sidebar__balance svg,
+  .notif__trigger svg,
+  .sidebar .searchbar svg,
+  .sidebar .avatar {
+    flex-shrink: 0;
+  }
+
+  /* Labels fade in after the width starts opening, and out straight away */
+  .sidebar__label,
+  .sidebar__balance-text,
+  .sidebar__me-text,
+  .notif__label,
+  .sidebar .searchbar input[type="search"] {
+    opacity: 1;
+    transition: opacity 0.18s 0.06s;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__label,
+  .sidebar:not(.is-expanded) .sidebar__balance-text,
+  .sidebar:not(.is-expanded) .sidebar__me-text,
+  .sidebar:not(.is-expanded) .notif__label,
+  .sidebar:not(.is-expanded) .searchbar input[type="search"] {
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0s;
+  }
+
+  /* Collapsed geometry: the rail's inner width is 48px, so each control is
+     sized to 48px and its icon sits dead centre */
+  .sidebar:not(.is-expanded) .searchbar {
+    gap: 0;
+    padding: 0 15px;
+  }
+
+  .sidebar:not(.is-expanded) .searchbar input[type="search"] {
+    width: 0;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .sidebar__balance {
+    padding: 10px 15px;
+  }
+
+  .sidebar__me {
+    transition:
+      padding 0.25s var(--sb-ease),
+      background 0.15s;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__me {
+    padding: 4px;
+  }
+
+  .sidebar:not(.is-expanded) .notif__badge {
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 0.6rem;
+  }
+
+  /* Log out only makes sense with room for it */
+  .sidebar__profile {
+    transition: gap 0.25s var(--sb-ease);
+  }
+
+  .sidebar__logout {
+    overflow: hidden;
+    transition:
+      width 0.25s var(--sb-ease),
+      opacity 0.18s 0.06s,
+      background 0.15s,
+      color 0.15s;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__profile {
+    gap: 0;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__logout {
+    width: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition-delay: 0s;
+  }
+
+  /* Bridge the gap between the sidebar and its notification panel so moving
+     the mouse across doesn't count as leaving the sidebar */
+  .notif__panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -40px;
+    width: 40px;
+  }
+}
+
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .sidebar-slot,
+  .sidebar,
+  .sidebar *,
+  .sidebar__toggle {
+    transition: none !important;
   }
 }
 
@@ -377,6 +577,15 @@
     flex-direction: column;
     gap: 16px;
     padding: 12px 16px 100px;
+  }
+
+  /* The slot only exists to reserve desktop width; on mobile it vanishes */
+  .sidebar-slot {
+    display: contents;
+  }
+
+  .sidebar__toggle {
+    display: none;
   }
 
   .sidebar {
@@ -437,11 +646,11 @@
     color: var(--muted);
   }
 
-  .sidebar .searchbar input[type='search'] {
+  .sidebar .searchbar input[type="search"] {
     color: var(--text);
   }
 
-  .sidebar .searchbar input[type='search']::placeholder {
+  .sidebar .searchbar input[type="search"]::placeholder {
     color: var(--muted);
   }
 
