@@ -147,6 +147,19 @@
   font-size: 1.1rem;
 }
 
+.commit-card__connect {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--purple-soft);
+  color: var(--purple-deep);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
 .commit-card__actions {
   display: flex;
   gap: 10px;

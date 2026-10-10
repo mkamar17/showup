@@ -195,3 +195,36 @@
     flex: 1;
   }
 }
+
+.banking {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.details-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 20px;
+  margin: 0;
+}
+
+.details-list dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.details-list dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.profile {
+  max-width: 1100px;
+}
+
+@media (max-width: 700px) {
+  .details-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}

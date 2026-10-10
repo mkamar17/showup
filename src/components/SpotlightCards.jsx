@@ -43,7 +43,7 @@ export default function SpotlightCards({ onCreate }) {
           <Wallet size={28} />
         </span>
         <span className="spot-card__text">
-          <small>Held for events</small>
+          <small>In your Engine Space</small>
           <strong className="spot-card__big">{formatMoney(me.held)}</strong>
           <small>
             across {heldEvents.length} event{heldEvents.length === 1 ? '' : 's'}

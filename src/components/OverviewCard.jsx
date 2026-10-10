@@ -24,14 +24,14 @@ export default function OverviewCard() {
       <AttendanceChart key={range} data={range === 'monthly' ? MONTHLY_ATTENDANCE : WEEKLY_ATTENDANCE} />
       <div className="overview__stats">
         <div>
-          <span>Available</span>
-          <strong>{formatMoney(me.balance)}</strong>
-          <small>Engine wallet</small>
+          <span>Starling balance</span>
+          <strong>{me.starling ? formatMoney(me.balance) : '—'}</strong>
+          <small>{me.starling ? `Account ••••${me.starling.accountLast4}` : 'Not connected'}</small>
         </div>
         <div className="is-featured">
-          <span>Held</span>
+          <span>Engine Space</span>
           <strong>{formatMoney(me.held)}</strong>
-          <small>Committed to events</small>
+          <small>Held for events</small>
         </div>
         <div>
           <span>Show-up rate</span>

@@ -1,10 +1,15 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowDownLeft, ArrowUpRight, Landmark, LogOut, RotateCcw, ShieldCheck, Wallet } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowDownLeft, Eye, Landmark, Lock, LogOut, RotateCcw, Send, ShieldCheck, Unlink } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import { formatMoney, relativeTime } from '../api/format'
+import { ME_ID } from '../api/constants'
+import { formatDateTime, formatMoney, relativeTime } from '../api/format'
 import Avatar from '../components/Avatar'
 import ConfirmModal from '../components/ConfirmModal'
+import StarlingBar from '../components/StarlingBar'
+import MoneyFlow from '../components/MoneyFlow'
+import StarlingActivity from '../components/StarlingActivity'
+import { PermissionList } from '../components/StarlingConnectModal'
 import '../styles/profile.css'
 
 const TABS = [
@@ -53,146 +58,171 @@ function DetailsTab() {
 }
 
 function BankingTab() {
-  const { me, updateBank } = useApp()
-  const [editing, setEditing] = useState(!me.bank)
-  const [form, setForm] = useState({ holder: me.bank?.holder ?? me.name, sortCode: '', accountNumber: '' })
-  const [error, setError] = useState('')
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
-
-  function save(e) {
-    e.preventDefault()
-    const sort = form.sortCode.replace(/\D/g, '')
-    const acc = form.accountNumber.replace(/\D/g, '')
-    if (!form.holder.trim()) return setError('Enter the account holder name')
-    if (sort.length !== 6) return setError('Sort codes have 6 digits (e.g. 12-34-56)')
-    if (acc.length !== 8) return setError('Account numbers have 8 digits')
-    // Only the last four digits are kept, even in this mock.
-    updateBank({ holder: form.holder.trim(), sortCode: `••-••-${sort.slice(4)}`, accountNumber: `••••${acc.slice(4)}` })
-    setError('')
-    setEditing(false)
-  }
+  const { me, now, disconnectStarling } = useApp()
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false)
+  const sb = me.starling
 
   return (
-    <div className="card">
+    <div className="banking">
+      <StarlingBar />
+      {sb ? (
+        <section className="card">
+          <h3 className="card__title">Connection details</h3>
+          <dl className="details-list">
+            <div>
+              <dt>Bank</dt>
+              <dd>Starling Bank</dd>
+            </div>
+            <div>
+              <dt>Account holder</dt>
+              <dd>{sb.accountName}</dd>
+            </div>
+            <div>
+              <dt>Account</dt>
+              <dd>
+                ••••{sb.accountLast4} · ••-••-{sb.sortLast2}
+              </dd>
+            </div>
+            <div>
+              <dt>Commitments Space</dt>
+              <dd>{sb.spaceName}</dd>
+            </div>
+            <div>
+              <dt>Connected</dt>
+              <dd>{relativeTime(sb.connectedAt, now)}</dd>
+            </div>
+            <div>
+              <dt>Access renews</dt>
+              <dd>Every 90 days</dd>
+            </div>
+          </dl>
+          <h3 className="card__title" style={{ marginTop: 22 }}>
+            Engine can
+          </h3>
+          <PermissionList />
+          <div className="form-actions" style={{ marginTop: 18 }}>
+            <button type="button" className="btn btn--danger-soft" onClick={() => setConfirmDisconnect(true)}>
+              <Unlink size={16} /> Disconnect Starling
+            </button>
+          </div>
+        </section>
+      ) : (
+        <section className="card">
+          <h3 className="card__title">Why connect a bank?</h3>
+          <p className="muted small" style={{ marginBottom: 16 }}>
+            When you commit to an event, the money moves into a Space inside your own Starling account and stays there until the event is
+            settled. Engine asks for these permissions:
+          </p>
+          <PermissionList />
+        </section>
+      )}
       <div className="notice">
         <ShieldCheck size={18} />
-        <span>Prototype only — no real bank connection. Don’t enter real details; only the last digits are stored, in this browser.</span>
+        <span>Prototype: no real bank connection is made. The sign-in and approval screens are simulated.</span>
       </div>
-      {!editing && me.bank ? (
-        <div className="bank-card">
-          <Landmark size={28} />
-          <div>
-            <strong>{me.bank.holder}</strong>
-            <span>
-              Sort code {me.bank.sortCode} · Account {me.bank.accountNumber}
-            </span>
-          </div>
-          <div className="bank-card__actions">
-            <button type="button" className="btn btn--soft btn--sm" onClick={() => setEditing(true)}>
-              Change
-            </button>
-            <button type="button" className="btn btn--ghost btn--sm" onClick={() => updateBank(null)}>
-              Remove
-            </button>
-          </div>
-        </div>
-      ) : (
-        <form className="form-grid" onSubmit={save}>
-          <label className="field field--full">
-            <span>Account holder</span>
-            <input type="text" value={form.holder} onChange={set('holder')} />
-          </label>
-          <label className="field">
-            <span>Sort code</span>
-            <input type="text" inputMode="numeric" value={form.sortCode} onChange={set('sortCode')} placeholder="12-34-56" maxLength={8} />
-          </label>
-          <label className="field">
-            <span>Account number</span>
-            <input type="text" inputMode="numeric" value={form.accountNumber} onChange={set('accountNumber')} placeholder="12345678" maxLength={8} />
-          </label>
-          {error && <p className="form-error field--full">{error}</p>}
-          <div className="field--full form-actions">
-            {me.bank && (
-              <button type="button" className="btn btn--ghost" onClick={() => setEditing(false)}>
-                Cancel
-              </button>
-            )}
-            <button type="submit" className="btn btn--primary">
-              Save banking details
-            </button>
-          </div>
-        </form>
+      {confirmDisconnect && (
+        <ConfirmModal
+          title="Disconnect Starling?"
+          message="You won’t be able to commit to events until you reconnect. Money still held in your Engine Space must settle first."
+          confirmLabel="Disconnect"
+          danger
+          onConfirm={disconnectStarling}
+          onClose={() => setConfirmDisconnect(false)}
+        />
       )}
     </div>
   )
 }
 
-const TX_ICONS = { topup: ArrowDownLeft, refund: ArrowDownLeft, payout: ArrowDownLeft, hold: ArrowUpRight, forfeit: ArrowUpRight, withdraw: ArrowUpRight }
-
 function WalletTab() {
-  const { me, state, now, topUp, withdraw } = useApp()
+  const { me, state, now, toast, demoAddFunds, disconnectStarling } = useApp()
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false)
+  const sb = me.starling
   const won = state.transactions.filter((t) => t.type === 'payout').reduce((sum, t) => sum + t.amount, 0)
+  const heldEvents = state.events
+    .filter((e) => !e.settled && e.members[ME_ID]?.status === 'committed')
+    .sort((a, b) => a.startAt - b.startAt)
 
   return (
     <div className="wallet">
-      <div className="spaces">
-        <div className="space space--purple">
-          <Wallet size={22} />
-          <span>Available</span>
-          <strong>{formatMoney(me.balance)}</strong>
-          <small>Free to commit or withdraw</small>
+      <StarlingBar />
+
+      <div className="spaces-row">
+        <div className="space-card space-card--white">
+          <span className="space-card__label">
+            <Landmark size={18} /> Starling main account
+          </span>
+          <strong className="space-card__amount">{sb ? formatMoney(me.balance) : '—'}</strong>
+          <small className="muted">{sb ? `Live balance · synced ${relativeTime(sb.lastSyncedAt, now)}` : 'Connect Starling to see your balance'}</small>
+          <span className="space-card__tag">
+            <Eye size={12} /> Read-only in Engine
+          </span>
         </div>
-        <div className="space space--pink">
-          <ShieldCheck size={22} />
-          <span>Held</span>
-          <strong>{formatMoney(me.held)}</strong>
-          <small>Locked until settlement</small>
+
+        <div className="space-card space-card--pink">
+          <span className="space-card__label">
+            <Lock size={18} /> Engine Commitments Space
+          </span>
+          <strong className="space-card__amount">{formatMoney(me.held)}</strong>
+          <small>A Space inside your Starling account · held until settlement</small>
+          <div className="space-breakdown">
+            {heldEvents.length === 0 && <p>Nothing held right now</p>}
+            {heldEvents.map((e) => (
+              <Link key={e.id} to={`/events/${e.id}`}>
+                <span>
+                  {e.title}
+                  <small>{formatDateTime(e.startAt)}</small>
+                </span>
+                <strong>{formatMoney(e.amount)}</strong>
+              </Link>
+            ))}
+          </div>
         </div>
-        <div className="space space--white">
-          <ArrowDownLeft size={22} />
-          <span>Won from no-shows</span>
-          <strong>{formatMoney(won)}</strong>
-          <small>All time</small>
+
+        <div className="space-card space-card--purple">
+          <span className="space-card__label">
+            <ArrowDownLeft size={18} /> Won from no-shows
+          </span>
+          <strong className="space-card__amount">{formatMoney(won)}</strong>
+          <small>Paid into your main account</small>
+          <span className="space-card__tag">
+            <Send size={12} /> Faster Payments
+          </span>
         </div>
       </div>
 
-      <div className="card wallet__actions">
-        <span className="muted small">Mock money movement</span>
-        <button type="button" className="btn btn--soft" onClick={() => topUp(1000)}>
-          Top up £10
-        </button>
-        <button type="button" className="btn btn--soft" onClick={() => topUp(2000)}>
-          Top up £20
-        </button>
-        <button type="button" className="btn btn--ghost" onClick={() => withdraw(me.balance)}>
-          Withdraw all
-        </button>
-      </div>
+      <MoneyFlow />
+      <StarlingActivity />
 
-      <section className="card">
-        <h3 className="card__title">History</h3>
-        {state.transactions.length === 0 && <p className="muted small">No transactions yet.</p>}
-        <ul className="tx-rows">
-          {state.transactions.map((t) => {
-            const Icon = TX_ICONS[t.type] ?? ArrowUpRight
-            return (
-              <li key={t.id}>
-                <span className={`tx-rows__icon ${t.amount >= 0 ? 'is-in' : 'is-out'}`}>
-                  <Icon size={16} />
-                </span>
-                <span className="tx-rows__text">
-                  <strong>{t.label}</strong>
-                  <small>
-                    {relativeTime(t.time, now)}
-                    {t.space === 'held' ? ' · from Held' : ''}
-                  </small>
-                </span>
-                <strong className={`amount ${t.amount >= 0 ? 'amount--plus' : 'amount--minus'}`}>{formatMoney(t.amount, { sign: true })}</strong>
-              </li>
-            )
-          })}
-        </ul>
+      <section className="card bank-actions">
+        <span className="bank-actions__note">
+          <ShieldCheck size={16} /> Engine can only move money into and out of your Engine Space, and pay attendees after an event you
+          committed to.
+        </span>
+        <button type="button" className="btn btn--ghost btn--sm" onClick={() => demoAddFunds(2000)} disabled={!sb} title="Demo only">
+          Demo: receive £20
+        </button>
+        {sb && (
+          <button type="button" className="btn btn--ghost btn--sm" onClick={() => setConfirmDisconnect(true)}>
+            Disconnect Starling
+          </button>
+        )}
+        <button type="button" className="btn btn--primary btn--sm" onClick={() => toast('This would open the Starling app on your phone')} disabled={!sb}>
+          View in Starling app
+        </button>
       </section>
+      <p className="muted small center">Prototype — not connected to Starling. Balances and payments are simulated.</p>
+
+      {confirmDisconnect && (
+        <ConfirmModal
+          title="Disconnect Starling?"
+          message="You won’t be able to commit to events until you reconnect. Money still held in your Engine Space must settle first."
+          confirmLabel="Disconnect"
+          danger
+          onConfirm={disconnectStarling}
+          onClose={() => setConfirmDisconnect(false)}
+        />
+      )}
     </div>
   )
 }

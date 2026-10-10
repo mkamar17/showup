@@ -1,7 +1,7 @@
 // Pure event helpers: timing, phases, recurrence and settlement of app state.
-import { CHECKIN_EARLY_MINUTES, ME_ID } from './constants'
+import { CHECKIN_EARLY_MINUTES, ME_ID, PAYMENT_SETTLE_MS } from './constants'
 import { computeSettlement } from './settlement'
-import { formatDate, formatMoney, toDateInput, uid } from './format'
+import { formatDate, formatMoney, makeReference, toDateInput, uid } from './format'
 
 const MINUTE = 60000
 const DAY = 86400000
@@ -34,6 +34,12 @@ export const PHASE_LABELS = {
 
 export const canCommitInPhase = (phase) => phase === 'upcoming' || phase === 'checkin-open'
 export const canCheckInPhase = (phase) => phase === 'checkin-open' || phase === 'grace'
+
+// Stable Starling payment reference for an event (fixed when it's created,
+// so it doesn't change if the demo "Start event now" moves the start time).
+export function eventReference(event) {
+  return event.reference ?? makeReference(event.title, event.startAt)
+}
 
 export function heldTotal(event) {
   return Object.values(event.members).filter((m) => m.status === 'committed').length * event.amount
@@ -74,7 +80,7 @@ export { addNotification }
 export function addTransaction(state, tx, now = Date.now()) {
   return {
     ...state,
-    transactions: [{ id: uid('tx'), time: now, space: 'available', ...tx }, ...state.transactions],
+    transactions: [{ id: uid('tx'), time: now, space: 'available', status: 'completed', ...tx }, ...state.transactions],
   }
 }
 
@@ -105,22 +111,27 @@ export function settleEventInState(state, eventId, now = Date.now()) {
     ),
   }
 
-  // Wallet history + notifications for the logged-in user.
+  // Starling activity + notifications for the logged-in user.
+  // Refunds come straight back from the Space; penalty shares travel by
+  // Faster Payment, so they show as "Pending" for a few seconds first.
   const link = `/events/${eventId}/settlement`
+  const reference = eventReference(event)
+  const pendingUntil = now + PAYMENT_SETTLE_MS
+  const names = (ids) => ids.map((id) => (id === ME_ID ? 'you' : state.users[id]?.name.split(' ')[0])).join(', ')
   if (result.committed.includes(ME_ID)) {
     const payout = result.payouts[ME_ID] || 0
     if (result.refundedAll) {
-      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Refunded — nobody checked in · ${event.title}`, eventId }, now)
+      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Refunded — nobody checked in · ${event.title}`, route: 'Engine Space → Main', reference, eventId }, now)
       next = addNotification(next, `${event.title}: nobody checked in, so everyone was refunded.`, link, 'info', now)
     } else if (payout > 0) {
-      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Commitment returned · ${event.title}`, eventId }, now)
+      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `Commitment returned · ${event.title}`, route: 'Engine Space → Main', reference, eventId }, now)
       if (payout > event.amount) {
-        next = addTransaction(next, { type: 'payout', amount: payout - event.amount, label: `Share of no-show penalties · ${event.title}`, eventId }, now)
+        next = addTransaction(next, { type: 'payout', amount: payout - event.amount, label: `Penalty share · ${event.title}`, sub: `from ${names(result.noShows)}`, route: 'Faster Payment → Main', status: 'pending', completesAt: pendingUntil, reference, eventId }, now)
       }
-      next = addNotification(next, `You showed up to ${event.title} — ${formatMoney(payout)} is back in your wallet.`, link, 'success', now)
+      next = addNotification(next, `You showed up to ${event.title} — ${formatMoney(event.amount)} is back in your Starling account${payout > event.amount ? `, plus ${formatMoney(payout - event.amount)} on its way` : ''}.`, link, 'success', now)
     } else {
-      next = addTransaction(next, { type: 'forfeit', amount: -event.amount, space: 'held', label: `Missed ${event.title} — commitment split between attendees`, eventId }, now)
-      next = addNotification(next, `You missed ${event.title}. Your ${formatMoney(event.amount)} was split between the friends who came.`, link, 'warning', now)
+      next = addTransaction(next, { type: 'forfeit', amount: -event.amount, space: 'held', label: `Missed ${event.title} — paid to attendees`, sub: `to ${names(result.attendees)}`, route: 'Engine Space → Faster Payment', status: 'pending', completesAt: pendingUntil, reference, eventId }, now)
+      next = addNotification(next, `You missed ${event.title}. Your ${formatMoney(event.amount)} is being paid to the friends who came.`, link, 'warning', now)
     }
   } else if (event.adminId === ME_ID) {
     next = addNotification(next, `${event.title} has been settled.`, link, 'info', now)
@@ -164,6 +175,7 @@ export function settleEventInState(state, eventId, now = Date.now()) {
         id: uid('evt'),
         date: nextDate,
         ...times,
+        reference: makeReference(event.title, times.startAt),
         members,
         settled: false,
         settlement: null,
@@ -187,7 +199,7 @@ export function refundEventInState(state, event, reason) {
     const u = users[id]
     users[id] = { ...u, held: Math.max(0, u.held - event.amount), balance: u.balance + event.amount }
     if (id === ME_ID) {
-      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `${reason} · ${event.title}`, eventId: event.id })
+      next = addTransaction(next, { type: 'refund', amount: event.amount, label: `${reason} · ${event.title}`, route: 'Engine Space → Main', reference: eventReference(event), eventId: event.id })
     }
   })
   return { ...next, users }

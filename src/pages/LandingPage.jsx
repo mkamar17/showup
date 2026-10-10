@@ -10,10 +10,11 @@ import EventCalendar from '../components/EventCalendar'
 import EventForm from '../components/EventForm'
 import FriendsPanel from '../components/FriendsPanel'
 import LiveMapCard from '../components/LiveMapCard'
+import StarlingBar from '../components/StarlingBar'
 import '../styles/dashboard.css'
 
 export default function LandingPage() {
-  const { state } = useApp()
+  const { state, me } = useApp()
   const navigate = useNavigate()
   const [view, setView] = useState('list')
   const [creating, setCreating] = useState(false)
@@ -23,6 +24,7 @@ export default function LandingPage() {
   return (
     <div className="dashboard">
       <div className="dashboard__main">
+        {!me.starling && <StarlingBar />}
         <div className="dashboard__top">
           <OverviewCard />
           <SpotlightCards onCreate={() => setCreating(true)} />

@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CircleCheck, Heart, Repeat } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CircleCheck, Clock, Heart, Repeat } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import { ME_ID } from '../api/constants'
+import { ME_ID, PAYMENT_SETTLE_MS } from '../api/constants'
 import { formatDateTime, formatMoney } from '../api/format'
+import { eventReference } from '../api/eventLogic'
 import Avatar from '../components/Avatar'
+import '../styles/starling.css'
 import '../styles/settlement.css'
 
 export default function SettlementPage() {
   const { eventId } = useParams()
-  const { state, updateMemory } = useApp()
+  const { state, now, updateMemory } = useApp()
   const event = state.events.find((e) => e.id === eventId)
   const memory = state.memories.find((m) => m.eventId === eventId)
   const [note, setNote] = useState(memory?.note ?? '')
@@ -123,6 +125,7 @@ export default function SettlementPage() {
                 <th>From</th>
                 <th />
                 <th>To</th>
+                <th>Via Starling</th>
                 <th className="num">Amount</th>
               </tr>
             </thead>
@@ -134,6 +137,18 @@ export default function SettlementPage() {
                     <ArrowRight size={14} />
                   </td>
                   <td>{nameOf(t.to)}</td>
+                  <td>
+                    <span className="muted small">{t.kind === 'refund' ? 'Space → Main' : 'Faster Payment'}</span>{' '}
+                    {t.kind === 'penalty' && now < s.settledAt + PAYMENT_SETTLE_MS ? (
+                      <span className="status-pill status-pill--pending">
+                        <Clock size={11} /> Pending
+                      </span>
+                    ) : (
+                      <span className="status-pill status-pill--done">
+                        <CircleCheck size={11} /> Done
+                      </span>
+                    )}
+                  </td>
                   <td className="num">
                     {formatMoney(t.amount)}
                     <small className="muted">{t.kind === 'refund' ? ' refund' : ' penalty'}</small>
@@ -143,7 +158,10 @@ export default function SettlementPage() {
             </tbody>
           </table>
           {s.transfers.some((t) => t.kind === 'penalty') && (
-            <p className="muted small">Penalties are split equally; any leftover penny goes to one attendee so the totals match exactly.</p>
+            <p className="muted small">
+              Refunds come straight back from each person’s Engine Space. Penalties are sent by Faster Payment and split equally; any leftover
+              penny goes to one attendee so the totals match exactly. Reference {eventReference(event)}.
+            </p>
           )}
         </section>
 
@@ -153,8 +171,8 @@ export default function SettlementPage() {
             <thead>
               <tr>
                 <th>Member</th>
-                <th className="num">Available</th>
-                <th className="num">Held</th>
+                <th className="num">Starling main</th>
+                <th className="num">Engine Space</th>
               </tr>
             </thead>
             <tbody>

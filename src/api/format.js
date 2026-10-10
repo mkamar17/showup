@@ -91,3 +91,18 @@ export function formatDistance(metres) {
   if (metres < 1000) return `${Math.round(metres)}m`
   return `${(metres / 1000).toFixed(1)}km`
 }
+
+// Payment reference shown on Starling statements, e.g. ENG-FT-1610.
+export function makeReference(title, ms) {
+  const letters =
+    title
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '')
+      .slice(0, 4) || 'EVT'
+  const d = new Date(ms)
+  return `ENG-${letters}-${pad(d.getDate())}${pad(d.getMonth() + 1)}`
+}

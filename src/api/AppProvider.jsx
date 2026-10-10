@@ -10,12 +10,13 @@ import {
   addTransaction,
   buildEventTimes,
   canCommitInPhase,
+  eventReference,
   getPhase,
   newMember,
   refundEventInState,
   settleEventInState,
 } from './eventLogic'
-import { formatMoney, toDateInput, toTimeInput, uid } from './format'
+import { formatMoney, makeReference, toDateInput, toTimeInput, uid } from './format'
 
 export function AppProvider({ children }) {
   const [state, setState] = useState(() => loadState() ?? createSeedState())
@@ -38,9 +39,26 @@ export function AppProvider({ children }) {
       const n = Date.now()
       setNow(n)
       setState((s) => {
+        let next = s
         const due = s.events.filter((e) => !e.settled && n >= e.graceEndsAt)
-        if (!due.length) return s
-        return due.reduce((acc, e) => settleEventInState(acc, e.id, n), s)
+        if (due.length) next = due.reduce((acc, e) => settleEventInState(acc, e.id, n), next)
+
+        // Mock Faster Payments: "Pending" → "Completed" after a few seconds.
+        const arrived = next.transactions.filter((t) => t.status === 'pending' && t.completesAt <= n)
+        if (arrived.length) {
+          next = {
+            ...next,
+            transactions: next.transactions.map((t) =>
+              t.status === 'pending' && t.completesAt <= n ? { ...t, status: 'completed' } : t,
+            ),
+          }
+          arrived
+            .filter((t) => t.amount > 0)
+            .forEach((t) => {
+              next = addNotification(next, `${formatMoney(t.amount)} arrived in your Starling account (${t.label}).`, '/profile?tab=wallet', 'success', n)
+            })
+        }
+        return next
       })
     }, 1000)
     return () => clearInterval(timer)
@@ -120,29 +138,65 @@ export function AppProvider({ children }) {
     toast('Profile saved', 'success')
   }
 
-  function updateBank(bank) {
-    setState((s) => ({ ...s, users: { ...s.users, [ME_ID]: { ...s.users[ME_ID], bank } } }))
-    toast(bank ? 'Banking details saved (mock)' : 'Banking details removed', 'success')
+  // ---------- Starling (mock) ----------
+  // In a real build these call a small backend that talks to Starling's API
+  // (OAuth, savings goals = Spaces, payments). Here they just update state.
+  function updateMe(fn) {
+    setState((s) => ({ ...s, users: { ...s.users, [ME_ID]: fn(s.users[ME_ID]) } }))
   }
 
-  function topUp(amount) {
+  function connectStarling() {
+    const t = Date.now()
+    setState((s) =>
+      addNotification(
+        {
+          ...s,
+          users: {
+            ...s.users,
+            [ME_ID]: {
+              ...s.users[ME_ID],
+              starling: {
+                accountName: s.users[ME_ID].name,
+                accountLast4: '5678',
+                sortLast2: '71',
+                spaceName: 'Engine Commitments',
+                connectedAt: t,
+                lastSyncedAt: t,
+              },
+            },
+          },
+        },
+        'Starling connected — your “Engine Commitments” Space is ready.',
+        '/profile?tab=wallet',
+        'success',
+      ),
+    )
+    toast('Starling account connected', 'success')
+  }
+
+  function disconnectStarling() {
+    if (me.held > 0) {
+      toast(`${formatMoney(me.held)} is still held in your Engine Space — disconnect after your events settle.`, 'error')
+      return false
+    }
+    updateMe((u) => ({ ...u, starling: null }))
+    toast('Starling disconnected')
+    return true
+  }
+
+  function syncStarling() {
+    updateMe((u) => ({ ...u, starling: { ...u.starling, lastSyncedAt: Date.now() } }))
+    toast('Balance refreshed from Starling', 'success')
+  }
+
+  // Demo helper: pretend money arrived in the Starling account.
+  function demoAddFunds(amount) {
     setState((s) => {
       const u = s.users[ME_ID]
       const next = { ...s, users: { ...s.users, [ME_ID]: { ...u, balance: u.balance + amount } } }
-      return addTransaction(next, { type: 'topup', amount, label: 'Top-up from linked bank (mock)' })
+      return addTransaction(next, { type: 'topup', amount, label: 'Money received (demo)', route: 'Bank transfer → Main', reference: 'DEMO' })
     })
-    toast(`${formatMoney(amount)} added to your Engine wallet`, 'success')
-  }
-
-  function withdraw(amount) {
-    if (amount <= 0 || amount > me.balance) return toast('Nothing available to withdraw', 'error')
-    if (!me.bank) return toast('Add banking details first', 'error')
-    setState((s) => {
-      const u = s.users[ME_ID]
-      const next = { ...s, users: { ...s.users, [ME_ID]: { ...u, balance: u.balance - amount } } }
-      return addTransaction(next, { type: 'withdraw', amount: -amount, label: `Withdrawn to account ending ${u.bank.accountNumber.slice(-4)} (mock)` })
-    })
-    toast(`${formatMoney(amount)} sent to your bank (mock)`, 'success')
+    toast(`${formatMoney(amount)} added to your Starling balance (demo)`, 'success')
   }
 
   // ---------- Friends ----------
@@ -185,10 +239,12 @@ export function AppProvider({ children }) {
     form.invitees.forEach((fid) => {
       members[fid] = newMember()
     })
+    const fields = formToEventFields(form)
     const event = {
       id,
       seriesId: id,
-      ...formToEventFields(form),
+      ...fields,
+      reference: makeReference(fields.title, fields.startAt),
       adminId: ME_ID,
       members,
       settled: false,
@@ -252,15 +308,26 @@ export function AppProvider({ children }) {
     toast('Invite sent', 'success')
   }
 
-  // "Join & commit £X": moves money from Available into Held.
+  // "Join & commit £X": moves money from the Starling main account into the
+  // Engine Commitments Space (after the user approves it in the bank app).
+  // Returns the payment reference, or null if it couldn't happen.
   function commit(eventId, userId = ME_ID) {
     const ev = state.events.find((e) => e.id === eventId)
     const user = state.users[userId]
-    if (!ev || !user) return
-    if (!canCommitInPhase(getPhase(ev, Date.now()))) return toast('Commitments are closed — the event has started', 'error')
-    if (user.balance < ev.amount) {
-      return toast(userId === ME_ID ? `Not enough balance — top up in Profile → Wallet` : `${user.name} doesn't have enough balance`, 'error')
+    if (!ev || !user) return null
+    if (!canCommitInPhase(getPhase(ev, Date.now()))) {
+      toast('Commitments are closed — the event has started', 'error')
+      return null
     }
+    if (userId === ME_ID && !user.starling) {
+      toast('Connect your Starling account first (Profile → Banking)', 'error')
+      return null
+    }
+    if (user.balance < ev.amount) {
+      toast(userId === ME_ID ? 'Not enough money in your Starling account' : `${user.name} doesn't have enough in their account`, 'error')
+      return null
+    }
+    const reference = eventReference(ev)
     setState((s) => {
       const u = s.users[userId]
       const e = s.events.find((x) => x.id === eventId)
@@ -275,13 +342,14 @@ export function AppProvider({ children }) {
         ),
       }
       if (userId === ME_ID) {
-        next = addTransaction(next, { type: 'hold', amount: -e.amount, label: `Committed to ${e.title}`, eventId })
+        next = addTransaction(next, { type: 'hold', amount: -e.amount, label: `Committed to ${e.title}`, route: 'Main → Engine Space', reference, eventId })
       } else if (e.adminId === ME_ID) {
         next = addNotification(next, `${u.name} committed ${formatMoney(e.amount)} to ${e.title}.`, `/events/${eventId}`, 'success')
       }
       return next
     })
-    toast(userId === ME_ID ? `${formatMoney(ev.amount)} is now held for ${ev.title}` : `${user.name} committed ${formatMoney(ev.amount)}`, 'success')
+    if (userId !== ME_ID) toast(`${user.name} committed ${formatMoney(ev.amount)}`, 'success')
+    return reference
   }
 
   function decline(eventId) {
@@ -407,9 +475,10 @@ export function AppProvider({ children }) {
     logout,
     resetDemo,
     updateProfile,
-    updateBank,
-    topUp,
-    withdraw,
+    connectStarling,
+    disconnectStarling,
+    syncStarling,
+    demoAddFunds,
     addFriend,
     removeFriend,
     createEvent,
