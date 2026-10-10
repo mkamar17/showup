@@ -22,7 +22,6 @@ export async function getTfLLineStatus(lineId) {
     throw new Error("TfL service status is unavailable right now.");
 
   const [line] = await response.json();
-  console.log(line, "<<<<<<<<<<<<<<<<<");
   const status = line?.lineStatuses?.[0];
   if (!line || !status)
     throw new Error("TfL did not return a status for that line.");
