@@ -7,6 +7,7 @@ import { formatMoney } from '../api/format'
 import Avatar from './Avatar'
 import SearchBar from './SearchBar'
 import NotificationDropdown from './NotificationDropdown'
+import showupBannerWine from '../assets/showup-banner-wine-cropped.png'
 import showupBanner from '../assets/showup-banner-white-cropped.png'
 
 const LINKS = [
@@ -23,9 +24,10 @@ export default function NavBar() {
   return (
     <aside className="sidebar">
       <button type="button" className="sidebar__brand" onClick={() => navigate('/')} aria-label="show up! home">
-        <span className="sidebar__brand-reveal">
+        <picture className="sidebar__brand-reveal">
+          <source media="(max-width: 900px)" srcSet={showupBannerWine} />
           <img className="sidebar__brand-image" src={showupBanner} alt="show up!" />
-        </span>
+        </picture>
       </button>
 
       <div className="sidebar__search">
