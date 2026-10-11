@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/api/tfl/*"
+  to = "https://api.tfl.gov.uk/:splat"
+  status = 200
+  force = true
