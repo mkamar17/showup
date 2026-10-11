@@ -2,7 +2,7 @@
 // meant for your money, and a way into the event's memory.
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, CircleCheck, CircleX, ImagePlus, MapPin, RotateCcw } from 'lucide-react'
+import { ArrowRight, Ban, CircleCheck, CircleX, ImagePlus, MapPin, RotateCcw, TrainFront } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
 import { canShareMemories, photosForEvent, settledOutcome } from '../api/eventLogic'
@@ -16,7 +16,29 @@ const OUTCOME = {
   showed: { icon: CircleCheck, label: 'You showed up', className: 'pill--success-soft' },
   missed: { icon: CircleX, label: 'You missed it', className: 'pill--danger-soft' },
   refunded: { icon: RotateCcw, label: 'Nobody checked in', className: 'pill--soft' },
+  excused: { icon: TrainFront, label: 'Excused by TfL', className: 'pill--mustard-soft' },
   none: { icon: null, label: 'You didn’t join', className: 'pill--soft' },
+}
+
+// Called off before it started: no outcome, everyone's money went back.
+function CancelledSummary({ event }) {
+  const { state } = useApp()
+  const by = event.cancelled.by === ME_ID ? 'you' : (state.users[event.cancelled.by]?.name ?? 'the organiser')
+  const committed = event.members[ME_ID]?.status === 'committed'
+  return (
+    <>
+      <div className="history-card__result">
+        <span className="pill pill--phase-cancelled">
+          <Ban size={12} /> Cancelled
+        </span>
+        {committed && <span className="small muted">{formatMoney(event.amount)} returned to you</span>}
+      </div>
+      <p className="muted small">
+        Called off by {by}
+        {event.cancelled.message ? ` · “${event.cancelled.message}”` : ''}
+      </p>
+    </>
+  )
 }
 
 function moneyLine(outcome, amount) {
@@ -25,6 +47,7 @@ function moneyLine(outcome, amount) {
   }
   if (outcome.kind === 'missed') return `${formatMoney(amount)} paid to those who came`
   if (outcome.kind === 'refunded') return `${formatMoney(amount)} refunded to everyone`
+  if (outcome.kind === 'excused') return `${formatMoney(amount)} released by TfL protection`
   return null
 }
 
@@ -33,6 +56,7 @@ export default function HistoryCard({ event }) {
   const navigate = useNavigate()
   const [adding, setAdding] = useState(false)
   const s = event.settlement
+  const cancelled = Boolean(event.cancelled)
   const outcome = settledOutcome(event, ME_ID)
   const { icon: OutcomeIcon, label, className } = OUTCOME[outcome.kind]
   const money = moneyLine(outcome, event.amount)
@@ -56,21 +80,27 @@ export default function HistoryCard({ event }) {
         </div>
       </div>
 
-      <div className="history-card__result">
-        <span className={`pill ${className}`}>
-          {OutcomeIcon && <OutcomeIcon size={12} />} {label}
-        </span>
-        {money && <span className={`small ${outcome.kind === 'missed' ? 'amount amount--minus' : outcome.net > 0 ? 'amount amount--plus' : 'muted'}`}>{money}</span>}
-      </div>
+      {cancelled ? (
+        <CancelledSummary event={event} />
+      ) : (
+        <>
+          <div className="history-card__result">
+            <span className={`pill ${className}`}>
+              {OutcomeIcon && <OutcomeIcon size={12} />} {label}
+            </span>
+            {money && <span className={`small ${outcome.kind === 'missed' ? 'amount amount--minus' : outcome.net > 0 ? 'amount amount--plus' : 'muted'}`}>{money}</span>}
+          </div>
 
-      <div className="history-card__people">
-        <AvatarStack users={s.attendees.map((id) => state.users[id]).filter(Boolean)} size={26} max={5} />
-        <span className="muted small">
-          {s.attendees.length} of {s.committed.length} showed up
-        </span>
-      </div>
+          <div className="history-card__people">
+            <AvatarStack users={s.attendees.map((id) => state.users[id]).filter(Boolean)} size={26} max={5} />
+            <span className="muted small">
+              {s.attendees.length} of {s.committed.length} showed up
+            </span>
+          </div>
+        </>
+      )}
 
-      {canShare && (
+      {canShare && !cancelled && (
         <div className="history-card__memory" onClick={stop}>
           {photos.length ? (
             <Link to={`/memories/${event.id}`} className="history-card__memory-link">

@@ -9,16 +9,22 @@ import { clearImages, deleteImages } from './photoStore'
 import {
   addNotification,
   addTransaction,
+  applyTransportProtection,
   buildEventTimes,
+  canCancel,
   canCommitInPhase,
+  canMemberCheckIn,
+  cancelEventInState,
   eventReference,
   getPhase,
+  isClosed,
   newMember,
   refundEventInState,
+  settleAt,
   settleEventInState,
 } from './eventLogic'
 import { formatMoney, makeReference, toDateInput, toTimeInput, uid } from './format'
-import { getTfLLineStatus } from './tflApi'
+import { demoTfLStatus, getTfLLineStatus, protectionFor } from './tflApi'
 
 export function AppProvider({ children }) {
   const [state, setState] = useState(() => loadState() ?? createSeedState())
@@ -42,7 +48,7 @@ export function AppProvider({ children }) {
       setNow(n)
       setState((s) => {
         let next = s
-        const due = s.events.filter((e) => !e.settled && n >= e.graceEndsAt)
+        const due = s.events.filter((e) => !isClosed(e) && n >= settleAt(e))
         if (due.length) next = due.reduce((acc, e) => settleEventInState(acc, e.id, n), next)
 
         // Mock Faster Payments: "Pending" → "Completed" after a few seconds.
@@ -296,6 +302,15 @@ export function AppProvider({ children }) {
     toast(`${ev.title} deleted${heldCount(ev) && !ev.settled ? ' — all commitments refunded' : ''}`)
   }
 
+  // Admin calls the event off before it starts: everyone's money goes back.
+  function cancelEvent(eventId, message) {
+    const ev = state.events.find((e) => e.id === eventId)
+    if (!ev || ev.adminId !== ME_ID || !canCancel(ev, Date.now())) return
+    setState((s) => cancelEventInState(s, eventId, { by: ME_ID, message }, Date.now()))
+    const n = heldCount(ev)
+    toast(`${ev.title} cancelled${n ? ` — ${formatMoney(ev.amount)} returned to ${n} ${n === 1 ? 'person' : 'people'}` : ''}`, 'success')
+  }
+
   function inviteToEvent(eventId, userIds) {
     setState((s) => ({
       ...s,
@@ -367,6 +382,7 @@ export function AppProvider({ children }) {
 
   function checkIn(eventId, userId = ME_ID, distance = null) {
     const ev = state.events.find((e) => e.id === eventId)
+    if (!ev || !canMemberCheckIn(ev, userId, Date.now())) return
     setState((s) => {
       let next = {
         ...s,
@@ -417,148 +433,50 @@ export function AppProvider({ children }) {
   }
 
   // ---------- TfL delay protection ----------
-  // The event-level extension is deliberate for the MVP: current settlement is
-  // event-wide, so this avoids silently settling someone with an approved delay.
-  async function requestDelayProtection(eventId, lineId) {
-    const requestedAt = Date.now()
-    setState((s) => ({
-      ...s,
-      events: s.events.map((event) =>
-        event.id === eventId
-          ? {
-              ...event,
-              lateRequest: {
-                memberId: ME_ID,
-                lineId,
-                status: 'checking',
-                requestedAt,
-              },
-            }
-          : event,
-      ),
-    }))
+  // TfL's answer decides automatically (see protectionFor): a suspension
+  // releases your commitment, delays extend your own deadline. `demoLabel`
+  // pretends TfL returned that status, for presenting on a calm day.
+  async function checkTransportDelay(eventId, lineId, demoLabel = null) {
+    const setDelay = (delay) =>
+      setState((s) => ({
+        ...s,
+        events: s.events.map((e) =>
+          e.id === eventId ? { ...e, members: { ...e.members, [ME_ID]: { ...e.members[ME_ID], delay } } } : e,
+        ),
+      }))
 
+    setDelay({ status: 'checking', lineId, at: Date.now() })
     try {
-      const tfl = await getTfLLineStatus(lineId)
-      setState((s) => ({
-        ...s,
-        events: s.events.map((event) =>
-          event.id === eventId && event.lateRequest?.requestedAt === requestedAt
-            ? {
-                ...event,
-                lateRequest: {
-                  ...event.lateRequest,
-                  status: tfl.verified ? 'pending' : 'not-verified',
-                  tfl,
-                },
-              }
-            : event,
-        ),
-      }))
-      toast(tfl.verified ? 'TfL disruption found — waiting for organiser approval.' : 'TfL reports Good Service on that line.', tfl.verified ? 'success' : 'info')
+      const tfl = demoLabel ? demoTfLStatus(lineId, demoLabel) : await getTfLLineStatus(lineId)
+      const protection = protectionFor(tfl.label)
+      setState((s) => applyTransportProtection(s, eventId, ME_ID, tfl, protection, Date.now()))
+      if (protection.outcome === 'release') toast(`TfL confirmed ${tfl.label.toLowerCase()}: your commitment is back in your account`, 'success')
+      else if (protection.outcome === 'extend') toast(`TfL confirmed ${tfl.label.toLowerCase()}: you have ${protection.minutes} more minutes`, 'success')
+      else toast(`TfL reports ${tfl.label} on the ${tfl.lineName}`)
     } catch (error) {
-      setState((s) => ({
-        ...s,
-        events: s.events.map((event) =>
-          event.id === eventId && event.lateRequest?.requestedAt === requestedAt
-            ? { ...event, lateRequest: { ...event.lateRequest, status: 'error', error: error.message } }
-            : event,
-        ),
-      }))
-      toast('Could not verify the TfL status. Try again.', 'error')
+      setDelay({ status: 'error', lineId, error: error.message, at: Date.now() })
+      toast('Could not reach TfL. Try again.', 'error')
     }
   }
 
-  function requestOtherDelayProtection(eventId, note) {
+  // Clears a "no disruption found" or failed check so another line can be tried.
+  function clearTransportDelay(eventId) {
     setState((s) => ({
       ...s,
-      events: s.events.map((event) =>
-        event.id === eventId
-          ? {
-              ...event,
-              lateRequest: {
-                memberId: ME_ID,
-                reasonType: 'other',
-                note: note.trim(),
-                status: 'pending',
-                requestedAt: Date.now(),
-              },
-            }
-          : event,
-      ),
-    }))
-    toast('Extension request sent to the organiser.', 'success')
-  }
-
-  function clearDelayProtectionRequest(eventId) {
-    setState((s) => ({
-      ...s,
-      events: s.events.map((event) => {
-        const retryable = ['not-verified', 'error'].includes(event.lateRequest?.status)
-        if (event.id !== eventId || !retryable || event.lateRequest.memberId !== ME_ID) return event
-        const { lateRequest: _lateRequest, ...eventWithoutRequest } = event
-        return eventWithoutRequest
+      events: s.events.map((e) => {
+        const m = e.members[ME_ID]
+        if (e.id !== eventId || !['none', 'error'].includes(m?.delay?.status)) return e
+        const { delay: _delay, ...rest } = m
+        return { ...e, members: { ...e.members, [ME_ID]: rest } }
       }),
     }))
   }
 
-  function approveDelayProtection(eventId) {
-    const approvedAt = Date.now()
-    setState((s) => ({
-      ...s,
-      events: s.events.map((event) => {
-        if (event.id !== eventId || event.lateRequest?.status !== 'pending') return event
-        return {
-          ...event,
-          graceEndsAt: event.graceEndsAt + 10 * 60000,
-          lateRequest: { ...event.lateRequest, status: 'approved', approvedAt, grantedMinutes: 10 },
-        }
-      }),
-    }))
-    toast('Grace period extended by 10 minutes.', 'success')
-  }
-
-  function declineDelayProtection(eventId) {
-    setState((s) => ({
-      ...s,
-      events: s.events.map((event) =>
-        event.id === eventId && event.lateRequest?.status === 'pending'
-          ? { ...event, lateRequest: { ...event.lateRequest, status: 'declined', decidedAt: Date.now() } }
-          : event,
-      ),
-    }))
-    toast('Delay-protection request declined.')
-  }
-
-  function createDemoDelayRequest(eventId) {
-    setState((s) => ({
-      ...s,
-      events: s.events.map((event) => {
-        if (event.id !== eventId) return event
-        const memberId = Object.keys(event.members).find((id) => id !== ME_ID) || 'u_max'
-        return {
-          ...event,
-          members: event.members[memberId]
-            ? event.members
-            : { ...event.members, [memberId]: { ...newMember('committed'), committedAt: Date.now() } },
-          lateRequest: {
-                memberId,
-                lineId: 'victoria',
-                status: 'pending',
-                requestedAt: Date.now(),
-                tfl: {
-                  lineId: 'victoria',
-                  lineName: 'Victoria line',
-                  verified: true,
-                  label: 'Minor Delays',
-                  reason: 'Delays due to a signal failure.',
-                  checkedAt: Date.now(),
-                },
-              },
-        }
-      }),
-    }))
-    toast('Demo TfL delay request created.')
+  // Demo: a friend's line is suspended, so they're excused by TfL.
+  function simulateFriendTransport(eventId, userId, label = 'Suspended', lineId = 'central') {
+    const tfl = demoTfLStatus(lineId, label)
+    setState((s) => applyTransportProtection(s, eventId, userId, tfl, protectionFor(label), Date.now()))
+    toast(`${state.users[userId].name}: TfL reports ${tfl.lineName} ${label.toLowerCase()}`)
   }
 
   // ---------- Notifications ----------
@@ -641,18 +559,16 @@ export function AppProvider({ children }) {
     createEvent,
     updateEvent,
     deleteEvent,
+    cancelEvent,
     inviteToEvent,
     commit,
     decline,
     checkIn,
     startEventNow,
     endGracePeriod,
-    requestDelayProtection,
-    requestOtherDelayProtection,
-    clearDelayProtectionRequest,
-    approveDelayProtection,
-    declineDelayProtection,
-    createDemoDelayRequest,
+    checkTransportDelay,
+    clearTransportDelay,
+    simulateFriendTransport,
     markNotificationRead,
     markAllRead,
     clearNotifications,

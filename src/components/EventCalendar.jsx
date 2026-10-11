@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Repeat } from 'lucide-react'
-import { occursOn } from '../api/eventLogic'
+import { isClosed, occursOn } from '../api/eventLogic'
 import { formatTime, toDateInput } from '../api/format'
 import ActivityIcon from './ActivityIcon'
 
@@ -76,7 +76,7 @@ export default function EventCalendar({ events }) {
               <span>{Number(dateStr.slice(-2))}</span>
               <span className="calendar__dots">
                 {dayEvents.slice(0, 3).map(({ event, kind }) => (
-                  <i key={event.id} className={`${kind === 'repeat' ? 'is-repeat' : ''} ${event.settled ? 'is-past' : ''}`} />
+                  <i key={event.id} className={`${kind === 'repeat' ? 'is-repeat' : ''} ${isClosed(event) ? 'is-past' : ''}`} />
                 ))}
               </span>
             </button>

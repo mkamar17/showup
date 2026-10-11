@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CircleCheck, Clock, Crown, ImagePlus, Images, Landmark, MapPin, Pencil, PoundSterling, Repeat, ShieldCheck, Timer, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Ban, CircleCheck, Clock, Crown, ImagePlus, Images, Landmark, MapPin, Pencil, PoundSterling, Repeat, ShieldCheck, Timer, Trash2 } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
-import { canCommitInPhase, canShareMemories, eventReference, getPhase, photosForEvent } from '../api/eventLogic'
+import { canCancel, canCommitInPhase, canShareMemories, eventReference, getPhase, isClosed, photosForEvent } from '../api/eventLogic'
 import { formatDateTime, formatGrace, formatMoney } from '../api/format'
 import ActivityIcon from '../components/ActivityIcon'
 import { PhasePill } from '../components/StatusPill'
@@ -14,12 +14,56 @@ import MemberList from '../components/MemberList'
 import DemoControls from '../components/DemoControls'
 import EventForm from '../components/EventForm'
 import ConfirmModal from '../components/ConfirmModal'
+import Modal from '../components/Modal'
 import { AddPeopleModal } from '../components/InviteModal'
 import CommitModal from '../components/CommitModal'
 import StarlingConnectModal from '../components/StarlingConnectModal'
 import AddPhotosModal from '../components/AddPhotosModal'
 import { PhotoStrip } from '../components/MemoryPhotos'
 import '../styles/eventDetail.css'
+
+// Admin calls the event off before it starts. Everyone's money goes back, and
+// the optional message is shown to the group on the cancelled event.
+function CancelEventModal({ event, onClose }) {
+  const { cancelEvent } = useApp()
+  const [message, setMessage] = useState('')
+  const committed = Object.values(event.members).filter((m) => m.status === 'committed').length
+
+  return (
+    <Modal
+      title={`Cancel ${event.title}?`}
+      onClose={onClose}
+      footer={
+        <>
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
+            Keep event
+          </button>
+          <button
+            type="button"
+            className="btn btn--danger"
+            onClick={() => {
+              cancelEvent(event.id, message)
+              onClose()
+            }}
+          >
+            Cancel event
+          </button>
+        </>
+      }
+    >
+      <p className="muted">
+        {committed
+          ? `Everyone who committed (${committed} ${committed === 1 ? 'person' : 'people'}) gets their ${formatMoney(event.amount)} back straight away.`
+          : 'Nobody has committed yet, so no money needs to move.'}{' '}
+        The event stays in everyone’s history as cancelled.
+      </p>
+      <label className="field cancel-event__field">
+        <span>Message to the group (optional)</span>
+        <textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={200} placeholder="e.g. Court’s flooded, rebooking for Sunday" />
+      </label>
+    </Modal>
+  )
+}
 
 // After the event: its shared photo memory, and the way to add to it.
 function EventMemory({ event, onAdd }) {
@@ -66,6 +110,7 @@ export default function EventDetailPage() {
   const [addingPeople, setAddingPeople] = useState(false)
   const [connecting, setConnecting] = useState(false)
   const [addingPhotos, setAddingPhotos] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
 
   const event = state.events.find((e) => e.id === eventId)
   if (!event) {
@@ -83,7 +128,10 @@ export default function EventDetailPage() {
   const isAdmin = event.adminId === ME_ID
   const myMember = event.members[ME_ID]
   const admin = state.users[event.adminId]
-  const nextInSeries = event.settled
+  const closed = isClosed(event)
+  const hasCommitments = Object.values(event.members).some((m) => m.status === 'committed')
+  const canceller = event.cancelled && (event.cancelled.by === ME_ID ? 'you' : state.users[event.cancelled.by]?.name)
+  const nextInSeries = closed
     ? state.events.find((e) => e.seriesId === event.seriesId && e.startAt > event.startAt)
     : null
 
@@ -130,14 +178,22 @@ export default function EventDetailPage() {
         </div>
         {isAdmin && (
           <div className="event-hero__actions">
-            {!event.settled && (
+            {!closed && (
               <button type="button" className="btn btn--light" onClick={() => setEditing(true)}>
                 <Pencil size={16} /> Edit
               </button>
             )}
-            <button type="button" className="btn btn--light" onClick={() => setConfirmDelete(true)}>
-              <Trash2 size={16} /> Delete
-            </button>
+            {canCancel(event, now) && (
+              <button type="button" className="btn btn--light" onClick={() => setCancelling(true)}>
+                <Ban size={16} /> Cancel event
+              </button>
+            )}
+            {/* Once money is held, cancelling is how it goes back (visibly) */}
+            {(closed || !hasCommitments) && (
+              <button type="button" className="btn btn--light" onClick={() => setConfirmDelete(true)}>
+                <Trash2 size={16} /> Delete
+              </button>
+            )}
           </div>
         )}
       </header>
@@ -157,6 +213,18 @@ export default function EventDetailPage() {
           </Link>
         </div>
       )}
+      {event.cancelled && (
+        <div className="banner banner--cancelled">
+          <Ban size={22} />
+          <div>
+            <strong>Cancelled by {canceller ?? 'the organiser'}</strong>
+            <span>
+              {event.cancelled.message ? `“${event.cancelled.message}” · ` : ''}
+              {hasCommitments ? `Every commitment (${formatMoney(event.amount)} each) was returned.` : 'No money had been committed.'}
+            </span>
+          </div>
+        </div>
+      )}
       {nextInSeries && (
         <p className="muted small">
           <Repeat size={13} /> Next one:{' '}
@@ -168,10 +236,10 @@ export default function EventDetailPage() {
 
       <div className="event-detail__grid">
         <div className="event-detail__col">
-          {!event.settled && <GraceCountdown event={event} phase={phase} />}
+          {!closed && <GraceCountdown event={event} phase={phase} />}
 
           {/* Commitment */}
-          {!event.settled && myMember && (
+          {!closed && myMember && !myMember.excused && (
             <section className="card commit-card">
               {myMember.status === 'invited' && (
                 <>
@@ -240,11 +308,9 @@ export default function EventDetailPage() {
             </section>
           )}
 
-          {!event.settled && myMember?.status === 'committed' && <CheckInPanel event={event} phase={phase} />}
-          {!event.settled && (myMember?.status === 'committed' || (isAdmin && event.lateRequest)) && (
-            <DelayProtectionCard event={event} phase={phase} isAdmin={isAdmin} />
-          )}
-          {isAdmin && !event.settled && <DemoControls event={event} phase={phase} />}
+          {myMember?.status === 'committed' && (!closed || myMember.excused) && <DelayProtectionCard event={event} />}
+          {!closed && myMember?.status === 'committed' && !myMember.excused && <CheckInPanel event={event} />}
+          {isAdmin && !closed && <DemoControls event={event} phase={phase} />}
           {event.settled && canShareMemories(event, ME_ID) && <EventMemory event={event} onAdd={() => setAddingPhotos(true)} />}
         </div>
 
@@ -256,12 +322,13 @@ export default function EventDetailPage() {
       {editing && <EventForm event={event} onClose={() => setEditing(false)} />}
       {addingPeople && <AddPeopleModal event={event} onClose={() => setAddingPeople(false)} />}
       {addingPhotos && <AddPhotosModal eventId={event.id} title={event.title} onClose={() => setAddingPhotos(false)} />}
+      {cancelling && <CancelEventModal event={event} onClose={() => setCancelling(false)} />}
       {confirmCommit && <CommitModal event={event} onClose={() => setConfirmCommit(false)} />}
       {connecting && <StarlingConnectModal onClose={() => setConnecting(false)} onConnected={() => setConfirmCommit(true)} />}
       {confirmDelete && (
         <ConfirmModal
           title={`Delete ${event.title}?`}
-          message={event.settled ? 'This removes the event. Your memory of it stays.' : 'Everyone who committed will be refunded in full. This can’t be undone.'}
+          message={event.settled ? 'This removes the event. Your memory of it stays.' : 'This removes the event for everyone. It can’t be undone.'}
           confirmLabel="Delete event"
           danger
           onConfirm={() => {

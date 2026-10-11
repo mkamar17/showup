@@ -6,10 +6,13 @@
 // - Each no-show's commitment is split equally between attendees.
 //   Pennies that don't divide evenly are handed out one at a time.
 // - If nobody checked in, everyone is refunded (there's no one to pay).
+// - Anyone excused by TfL was already refunded and sits outside the pot.
 
 export function computeSettlement(event) {
   const ids = Object.keys(event.members)
-  const committed = ids.filter((id) => event.members[id].status === 'committed')
+  const joined = ids.filter((id) => event.members[id].status === 'committed')
+  const excused = joined.filter((id) => event.members[id].excused)
+  const committed = joined.filter((id) => !event.members[id].excused)
   const attendees = committed.filter((id) => event.members[id].checkedInAt)
   const noShows = committed.filter((id) => !event.members[id].checkedInAt)
   const amount = event.amount
@@ -24,6 +27,7 @@ export function computeSettlement(event) {
     return {
       amount,
       committed,
+      excused,
       attendees,
       noShows,
       payouts,
@@ -56,6 +60,7 @@ export function computeSettlement(event) {
   return {
     amount,
     committed,
+    excused,
     attendees,
     noShows,
     payouts,

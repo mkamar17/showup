@@ -2,13 +2,14 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronRight, Landmark, Lock } from 'lucide-react'
 import { ME_ID } from '../api/constants'
 import { useApp } from '../api/useApp'
+import { isClosed } from '../api/eventLogic'
 import { formatMoney } from '../api/format'
 
 // Compact mustard block: money held in your show up! Space.
 export default function HeldCard() {
   const { state, me } = useApp()
   const navigate = useNavigate()
-  const count = state.events.filter((e) => !e.settled && e.members[ME_ID]?.status === 'committed').length
+  const count = state.events.filter((e) => !isClosed(e) && e.members[ME_ID]?.status === 'committed').length
 
   if (!me.starling) {
     return (

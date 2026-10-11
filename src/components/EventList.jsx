@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { CalendarDays } from 'lucide-react'
+import { isClosed } from '../api/eventLogic'
 import EventCard from './EventCard'
 import HistoryCard from './HistoryCard'
 
 export default function EventList({ events, onCreate }) {
   const [tab, setTab] = useState('upcoming')
-  const upcoming = events.filter((e) => !e.settled).sort((a, b) => a.startAt - b.startAt)
-  const past = events.filter((e) => e.settled).sort((a, b) => b.startAt - a.startAt)
+  const upcoming = events.filter((e) => !isClosed(e)).sort((a, b) => a.startAt - b.startAt)
+  const past = events.filter(isClosed).sort((a, b) => b.startAt - a.startAt)
   const list = tab === 'upcoming' ? upcoming : past
 
   return (

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useApp } from '../api/useApp'
+import { isClosed } from '../api/eventLogic'
 import { ME_ID } from '../api/constants'
 import { formatDateTime } from '../api/format'
 import Modal from './Modal'
@@ -56,7 +57,7 @@ export function AddPeopleModal({ event, onClose }) {
 export function InviteFriendModal({ friend, onClose }) {
   const { state, inviteToEvent } = useApp()
   const events = state.events
-    .filter((e) => e.adminId === ME_ID && !e.settled && !e.members[friend.id])
+    .filter((e) => e.adminId === ME_ID && !isClosed(e) && !e.members[friend.id])
     .sort((a, b) => a.startAt - b.startAt)
 
   return (

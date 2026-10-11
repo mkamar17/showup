@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ME_ID } from '../api/constants'
 import { useApp } from '../api/useApp'
+import { isClosed } from '../api/eventLogic'
 import { formatDateTime, timeUntil } from '../api/format'
 import ActivityIcon from './ActivityIcon'
 
@@ -9,7 +10,7 @@ export default function NextUpCard({ onCreate }) {
   const { state, now } = useApp()
   const navigate = useNavigate()
   const next = state.events
-    .filter((e) => !e.settled && e.members[ME_ID] && e.members[ME_ID].status !== 'declined')
+    .filter((e) => !isClosed(e) && e.members[ME_ID] && e.members[ME_ID].status !== 'declined')
     .sort((a, b) => a.startAt - b.startAt)[0]
 
   return next ? (

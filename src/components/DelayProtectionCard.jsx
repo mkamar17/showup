@@ -1,109 +1,149 @@
+// TfL delay protection: tell us your line, TfL's live status decides.
+// Suspended → your commitment is released; delays → more time for you only.
+// No organiser approval: the transport data is the proof.
 import { useState } from 'react'
-import { AlertTriangle, CheckCircle2, Clock3, LoaderCircle, MessageSquareText, TrainFront, XCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Clock3, LoaderCircle, ShieldCheck, TrainFront, Wand2 } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import { TFL_LINES } from '../api/tflApi'
 import { ME_ID } from '../api/constants'
+import { canMemberCheckIn, memberDeadline } from '../api/eventLogic'
+import { formatMoney, formatTime } from '../api/format'
+import { DEMO_TFL_STATUSES, TFL_LINES } from '../api/tflApi'
 
-export default function DelayProtectionCard({ event, phase, isAdmin }) {
-  const { state, requestDelayProtection, requestOtherDelayProtection, clearDelayProtectionRequest, approveDelayProtection, declineDelayProtection } = useApp()
+const RULES = [
+  ['Suspended', 'commitment released, not a no-show'],
+  ['Severe delays', '+20 min to check in'],
+  ['Minor delays', '+10 min to check in'],
+]
+
+export default function DelayProtectionCard({ event }) {
+  const { now, checkTransportDelay, clearTransportDelay } = useApp()
   const [lineId, setLineId] = useState('victoria')
-  const [reasonType, setReasonType] = useState('tfl')
-  const [otherNote, setOtherNote] = useState('')
-  const request = event.lateRequest
-  const requester = request ? state.users[request.memberId] : null
-  const canRequest = ['checkin-open', 'grace'].includes(phase) && !request
-  const isMyRequest = request?.memberId === ME_ID
-  const isOtherReason = request?.reasonType === 'other'
+  const [demoLabel, setDemoLabel] = useState('Suspended')
+  const me = event.members[ME_ID]
+  const delay = me?.delay
+  const tfl = delay?.tfl
+  const amount = formatMoney(event.amount)
 
-  // Only verified disruptions become organiser approval requests. A Good
-  // Service result remains visible to the requester as a retry prompt only.
-  if (request?.status === 'pending' && isAdmin && !isMyRequest) {
+  if (me?.excused) {
     return (
-      <section className="card delay-card delay-card--approval">
-        <div className="card__head">
-          <h2><TrainFront size={19} /> Delay-protection request</h2>
-          <span className="pill pill--pink-soft">Admin decision</span>
-        </div>
-        <p className="muted small"><strong>{requester?.name || 'A member'}</strong> is running late and asked for more time.</p>
-        <div className="delay-card__evidence">
-          <strong>{isOtherReason ? 'Other reason' : request.tfl?.lineName || request.lineId}</strong>
-          <span>{isOtherReason ? 'Organiser review required' : request.tfl?.label || 'Checking TfL status…'}</span>
-          {isOtherReason && <small>{request.note || 'No note provided.'}</small>}
-          {!isOtherReason && request.tfl?.reason && <small>{request.tfl.reason}</small>}
-        </div>
-        <div className="delay-card__actions">
-          <button type="button" className="btn btn--primary" onClick={() => approveDelayProtection(event.id)}>
-            <CheckCircle2 size={17} /> Approve +10 min
-          </button>
-          <button type="button" className="btn btn--ghost" onClick={() => declineDelayProtection(event.id)}>
-            <XCircle size={17} /> Decline
-          </button>
+      <section className="card delay-card delay-card--release">
+        <div className="delay-card__status">
+          <ShieldCheck size={22} />
+          <div>
+            <h2>Excused by TfL</h2>
+            <p>
+              TfL confirmed <strong>{me.excused.lineName}: {me.excused.label}</strong>. Your {amount} has been released back to your Starling
+              account, and you won’t be counted as a no-show.
+            </p>
+            {me.excused.reason && <small className="delay-card__reason">{me.excused.reason}</small>}
+          </div>
         </div>
       </section>
     )
   }
 
-  if (request) {
-    const states = {
-      checking: { icon: <LoaderCircle className="delay-card__spin" size={20} />, title: 'Checking TfL service status…', copy: 'We are looking for a disruption on the route you selected.' },
-      pending: { icon: <Clock3 size={20} />, title: 'Waiting for organiser approval', copy: isOtherReason ? `Your organiser is reviewing your request. Your £${(event.amount / 100).toFixed(2)} remains held while they decide.` : `TfL reports ${request.tfl?.label} on the ${request.tfl?.lineName}. Your £${(event.amount / 100).toFixed(2)} remains held while they decide.` },
-      approved: { icon: <CheckCircle2 size={20} />, title: 'Grace period extended by 10 minutes', copy: `Your organiser approved ${isOtherReason ? 'your extension request' : 'the verified TfL disruption'}. Check in before the new deadline to protect your commitment.` },
-      declined: { icon: <XCircle size={20} />, title: 'Extension not approved', copy: 'Your original check-in deadline still applies.' },
-      'not-verified': { icon: <AlertTriangle size={20} />, title: 'No TfL disruption found', copy: `TfL reports ${request.tfl?.label} on the ${request.tfl?.lineName}. Your original deadline still applies.` },
-      error: { icon: <AlertTriangle size={20} />, title: 'TfL could not verify this request', copy: request.error || 'Try again shortly.' },
-    }
-    const status = states[request.status] || states.error
+  if (delay?.status === 'checking') {
     return (
-      <section className={`card delay-card delay-card--${request.status}`}>
+      <section className="card delay-card">
         <div className="delay-card__status">
-          {status.icon}
-          <div><h2>{status.title}</h2><p>{status.copy}</p></div>
+          <LoaderCircle className="delay-card__spin" size={22} />
+          <div>
+            <h2>Checking with TfL…</h2>
+            <p>Looking up live service status for your line.</p>
+          </div>
         </div>
-        {(request.status === 'not-verified' || request.status === 'error') && (
-          <button type="button" className="btn btn--soft btn--sm" onClick={() => clearDelayProtectionRequest(event.id)}>
-            Try another reason
+      </section>
+    )
+  }
+
+  if (delay?.status === 'extend' && !me.checkedInAt) {
+    return (
+      <section className="card delay-card delay-card--extend">
+        <div className="delay-card__status">
+          <Clock3 size={22} />
+          <div>
+            <h2>+{delay.minutes} min to check in</h2>
+            <p>
+              TfL confirmed <strong>{tfl.lineName}: {tfl.label}</strong>. Your deadline is now <strong>{formatTime(memberDeadline(event, ME_ID))}</strong>
+              , just for you.
+            </p>
+            {tfl.reason && <small className="delay-card__reason">{tfl.reason}</small>}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (delay?.status === 'none' || delay?.status === 'error') {
+    return (
+      <section className="card delay-card delay-card--none">
+        <div className="delay-card__status">
+          <AlertTriangle size={22} />
+          <div>
+            <h2>{delay.status === 'error' ? 'Couldn’t reach TfL' : `TfL reports ${tfl.label}`}</h2>
+            <p>
+              {delay.status === 'error'
+                ? delay.error || 'Try again in a moment.'
+                : delay.why || `No disruption on the ${tfl.lineName}, so your normal deadline still applies.`}
+            </p>
+          </div>
+        </div>
+        {canMemberCheckIn(event, ME_ID, now) && (
+          <button type="button" className="btn btn--soft btn--sm" onClick={() => clearTransportDelay(event.id)}>
+            Check another line
           </button>
         )}
       </section>
     )
   }
 
-  if (!canRequest) return null
+  // Only someone still on their way can ask: committed, not checked in, window open.
+  if (!canMemberCheckIn(event, ME_ID, now)) return null
 
   return (
     <section className="card delay-card">
       <div className="card__head">
-        <h2><TrainFront size={19} /> Running late?</h2>
-        <span className="pill pill--soft">TfL delay protection</span>
+        <h2>
+          <TrainFront size={19} /> Stuck on the tube?
+        </h2>
+        <span className="pill pill--soft">TfL protection</span>
       </div>
-      <p className="muted small">TfL requests include live disruption evidence. Other reasons go directly to your organiser for review.</p>
-      <div className="delay-card__reason-tabs" role="group" aria-label="Reason for being late">
-        <button type="button" className={`btn btn--sm ${reasonType === 'tfl' ? 'btn--soft' : 'btn--ghost'}`} aria-pressed={reasonType === 'tfl'} onClick={() => setReasonType('tfl')}>
-          <TrainFront size={15} /> TfL disruption
-        </button>
-        <button type="button" className={`btn btn--sm ${reasonType === 'other' ? 'btn--soft' : 'btn--ghost'}`} aria-pressed={reasonType === 'other'} onClick={() => setReasonType('other')}>
-          <MessageSquareText size={15} /> Other reason
+      <p className="muted small">Pick your line. TfL’s live status decides automatically, with no approval needed:</p>
+      <ul className="delay-card__rules">
+        {RULES.map(([status, outcome]) => (
+          <li key={status}>
+            <strong>{status}</strong> → {outcome}
+          </li>
+        ))}
+      </ul>
+
+      <label className="delay-card__label" htmlFor={`tfl-line-${event.id}`}>
+        Your line
+      </label>
+      <select id={`tfl-line-${event.id}`} className="select" value={lineId} onChange={(e) => setLineId(e.target.value)}>
+        {TFL_LINES.map((line) => (
+          <option key={line.id} value={line.id}>
+            {line.label}
+          </option>
+        ))}
+      </select>
+      <button type="button" className="btn btn--primary btn--block delay-card__request" onClick={() => checkTransportDelay(event.id, lineId)}>
+        <CheckCircle2 size={17} /> Check live TfL status
+      </button>
+
+      <div className="delay-card__demo">
+        <span>
+          <Wand2 size={14} /> Demo: pretend TfL says
+        </span>
+        <select className="select" value={demoLabel} onChange={(e) => setDemoLabel(e.target.value)} aria-label="Simulated TfL status">
+          {DEMO_TFL_STATUSES.map((label) => (
+            <option key={label}>{label}</option>
+          ))}
+        </select>
+        <button type="button" className="btn btn--ghost btn--sm" onClick={() => checkTransportDelay(event.id, lineId, demoLabel)}>
+          Run
         </button>
       </div>
-      {reasonType === 'tfl' ? (
-        <>
-          <label className="delay-card__label" htmlFor={`tfl-line-${event.id}`}>Affected service</label>
-          <select id={`tfl-line-${event.id}`} className="select" value={lineId} onChange={(event) => setLineId(event.target.value)}>
-            {TFL_LINES.map((line) => <option key={line.id} value={line.id}>{line.label}</option>)}
-          </select>
-          <button type="button" className="btn btn--soft btn--block delay-card__request" onClick={() => requestDelayProtection(event.id, lineId)}>
-            <TrainFront size={17} /> Verify TfL delay & request +10 min
-          </button>
-        </>
-      ) : (
-        <>
-          <label className="delay-card__label" htmlFor={`other-note-${event.id}`}>Optional note</label>
-          <textarea id={`other-note-${event.id}`} value={otherNote} onChange={(event) => setOtherNote(event.target.value)} maxLength={180} rows={3} placeholder="Briefly explain why you are running late" />
-          <button type="button" className="btn btn--soft btn--block delay-card__request" onClick={() => requestOtherDelayProtection(event.id, otherNote)}>
-            <MessageSquareText size={17} /> Request +10 min
-          </button>
-        </>
-      )}
     </section>
   )
 }

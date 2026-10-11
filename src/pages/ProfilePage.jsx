@@ -4,7 +4,7 @@ import { ArrowDownLeft, ArrowUpRight, Landmark, Lock, LogOut, RotateCcw, Send, S
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
 import { formatDateTime, formatMoney, relativeTime } from '../api/format'
-import { moneyRecord } from '../api/eventLogic'
+import { isClosed, moneyRecord } from '../api/eventLogic'
 import Avatar from '../components/Avatar'
 import ConfirmModal from '../components/ConfirmModal'
 import StarlingBar from '../components/StarlingBar'
@@ -141,12 +141,12 @@ function WalletTab() {
   const sb = me.starling
   const record = moneyRecord(state.events, ME_ID)
   const heldEvents = state.events
-    .filter((e) => !e.settled && e.members[ME_ID]?.status === 'committed')
+    .filter((e) => !isClosed(e) && e.members[ME_ID]?.status === 'committed')
     .sort((a, b) => a.startAt - b.startAt)
 
   return (
     <div className="wallet">
-      <StarlingBar showBalance />
+      <StarlingBar />
 
       {/* Your show up! money: what's at stake now, then your track record */}
       <div className="spaces-row">

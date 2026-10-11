@@ -6,6 +6,9 @@ const MEMBER_LABELS = {
   declined: 'Declined',
   checkedIn: 'Checked in',
   noShow: 'No-show',
+  refunded: 'Refunded',
+  excused: 'Excused · TfL',
+  delayed: 'Delayed · TfL',
 }
 
 export function PhasePill({ phase }) {

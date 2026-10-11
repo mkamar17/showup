@@ -254,6 +254,16 @@
   margin-bottom: 0;
 }
 
+.delay-card__rules {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.84rem;
+}
+
 .delay-card__label {
   font-size: 0.82rem;
   color: var(--muted);
@@ -265,17 +275,42 @@
   margin-top: 2px;
 }
 
-.delay-card__reason-tabs {
+/* Demo: pretend TfL returned a status (live TfL is usually calm) */
+.delay-card__demo {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.delay-card__demo > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.delay-card__demo .select {
+  width: auto;
+  flex: 1;
+  min-width: 140px;
+  padding: 7px 10px;
+  font-size: 0.84rem;
 }
 
 .delay-card__status {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  color: var(--purple);
+  color: var(--wine);
+}
+
+.delay-card__status > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .delay-card__status > div {
@@ -294,14 +329,36 @@
   margin: 0;
 }
 
-.delay-card--approved .delay-card__status {
-  color: #23934e;
+.delay-card__status strong {
+  color: var(--text);
 }
 
-.delay-card--declined .delay-card__status,
-.delay-card--not-verified .delay-card__status,
-.delay-card--error .delay-card__status {
-  color: var(--pink-dark);
+.delay-card__reason {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.delay-card--release {
+  background: var(--sage-soft);
+}
+
+.delay-card--release .delay-card__status {
+  color: var(--sage-dark);
+}
+
+.delay-card--extend {
+  background: var(--mustard-soft);
+}
+
+.delay-card--extend .delay-card__status {
+  color: #8a5f0e;
+}
+
+.delay-card--none .delay-card__status {
+  color: var(--muted);
 }
 
 .delay-card__spin {
@@ -309,34 +366,9 @@
 }
 
 @keyframes delay-card-spin {
-  to { transform: rotate(360deg); }
-}
-
-.delay-card__evidence {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 13px 15px;
-  background: var(--purple-soft);
-  border-radius: var(--radius-sm);
-  color: var(--purple-deep);
-  font-size: 0.88rem;
-}
-
-.delay-card__evidence span {
-  color: var(--purple);
-  font-weight: 600;
-}
-
-.delay-card__evidence small {
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.delay-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------- Members ---------- */
@@ -482,4 +514,8 @@
 
 .event-memory > .btn {
   align-self: flex-start;
+}
+
+.cancel-event__field {
+  margin-top: 14px;
 }

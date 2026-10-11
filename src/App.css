@@ -256,6 +256,11 @@
   color: #6b645d;
 }
 
+.pill--phase-cancelled {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
 .pill--member-invited {
   background: #efe9df;
   color: #6b645d;
@@ -269,6 +274,26 @@
 .pill--member-checkedIn {
   background: var(--sage-soft);
   color: var(--sage-dark);
+}
+
+.pill--phase-overtime {
+  background: var(--mustard);
+  color: var(--on-mustard);
+}
+
+.pill--member-excused {
+  background: var(--sage-soft);
+  color: var(--sage-dark);
+}
+
+.pill--member-delayed {
+  background: var(--mustard-soft);
+  color: #8a5f0e;
+}
+
+.pill--member-refunded {
+  background: var(--surface-2);
+  color: var(--muted);
 }
 
 .pill--member-declined,
@@ -914,6 +939,15 @@ input[type='range'] {
 .banner--info {
   background: var(--wine-soft);
   color: var(--wine-deep);
+}
+
+.banner--cancelled {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.banner--cancelled > svg {
+  color: var(--muted);
 }
 
 .banner--wine {

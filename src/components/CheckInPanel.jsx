@@ -2,17 +2,17 @@
 import { CircleCheck, Lock, LocateFixed, Navigation, Unlock } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID, CHECKIN_EARLY_MINUTES } from '../api/constants'
-import { canCheckInPhase } from '../api/eventLogic'
+import { canMemberCheckIn } from '../api/eventLogic'
 import { distanceMetres, offsetNorth } from '../api/geo'
 import { formatDistance, formatTime, timeUntil } from '../api/format'
 import MapView from './MapView'
 
-export default function CheckInPanel({ event, phase }) {
+export default function CheckInPanel({ event }) {
   const { now, location, locationStatus, locationError, requestGps, simulateLocation, checkIn } = useApp()
   const member = event.members[ME_ID]
   const distance = location ? distanceMetres(location, event.venue) : null
   const inRadius = distance !== null && distance <= event.radius
-  const windowOpen = canCheckInPhase(phase)
+  const windowOpen = canMemberCheckIn(event, ME_ID, now)
   const checkedIn = Boolean(member?.checkedInAt)
 
   let message
@@ -22,6 +22,8 @@ export default function CheckInPanel({ event, phase }) {
     message = locationStatus === 'locating' ? 'Finding your location…' : 'Share your location so Show up! can confirm you’re at the venue.'
   } else if (!inRadius) {
     message = `You’re ${formatDistance(distance)} away — check-in unlocks within ${event.radius}m.`
+  } else if (!windowOpen && now >= event.startAt) {
+    message = 'Check-in has closed for this event.'
   } else if (!windowOpen) {
     message = `You’re at the venue! Check-in opens ${CHECKIN_EARLY_MINUTES} min before the start (in ${timeUntil(event.startAt - CHECKIN_EARLY_MINUTES * 60000, now)}).`
   } else {
