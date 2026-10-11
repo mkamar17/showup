@@ -2,7 +2,8 @@
 
 export const ME_ID = 'u_me'
 
-export const STORAGE_KEY = 'engine-prototype-state-v3'
+// v4: adds `photos` and the Saturday Doubles demo event.
+export const STORAGE_KEY = 'engine-prototype-state-v4'
 
 // Mock Starling: how long a Faster Payment shows as "Pending" before "Completed".
 export const PAYMENT_SETTLE_MS = 6000

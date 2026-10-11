@@ -5,6 +5,7 @@ import { AppContext } from './context'
 import { ME_ID, DEMO_GRACE_SPEED } from './constants'
 import { createSeedState } from './seedData'
 import { loadState, saveState, clearState } from './storage'
+import { clearImages, deleteImages } from './photoStore'
 import {
   addNotification,
   addTransaction,
@@ -124,6 +125,7 @@ export function AppProvider({ children }) {
     setLocation(null)
     setLocationStatus('idle')
     clearState()
+    clearImages().catch(() => {})
     const fresh = createSeedState()
     setState((s) => ({
       ...fresh,
@@ -571,9 +573,18 @@ export function AppProvider({ children }) {
     toast('Memory saved', 'success')
   }
 
-  function deleteMemory(id) {
-    setState((s) => ({ ...s, memories: s.memories.filter((m) => m.id !== id) }))
-    toast('Memory deleted')
+  // Photo metadata only; the image files are saved by photoStore first.
+  function addPhotos(eventId, photos) {
+    const createdAt = Date.now()
+    const records = photos.map(({ id, width, height }, i) => ({ id, eventId, uploadedBy: ME_ID, width, height, createdAt: createdAt + i }))
+    setState((s) => ({ ...s, photos: [...s.photos, ...records] }))
+  }
+
+  // Uploaders can remove their own photos; the event's admin can remove any.
+  function removePhoto(id) {
+    setState((s) => ({ ...s, photos: s.photos.filter((p) => p.id !== id) }))
+    deleteImages(id).catch(() => {})
+    toast('Photo removed')
   }
 
   // ---------- Location ----------
@@ -646,7 +657,8 @@ export function AppProvider({ children }) {
     markAllRead,
     clearNotifications,
     updateMemory,
-    deleteMemory,
+    addPhotos,
+    removePhoto,
     location,
     locationStatus,
     locationError,

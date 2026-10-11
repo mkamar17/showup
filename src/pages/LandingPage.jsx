@@ -4,6 +4,7 @@ import { CalendarDays, List, Plus } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
 import EventList from '../components/EventList'
+import SearchBar from '../components/SearchBar'
 import EventCalendar from '../components/EventCalendar'
 import EventForm from '../components/EventForm'
 import NextUpCard from '../components/NextUpCard'
@@ -21,10 +22,13 @@ export default function LandingPage() {
 
   return (
     <div className="dashboard">
-      {/* Top bar: title on the left, view toggle + create on the far right */}
+      {/* Top bar: title on the left, search + view toggle + create on the far right */}
       <header className="events-section__head dashboard__head">
         <h2>Your events</h2>
         <div className="events-section__actions">
+          <div className="dashboard__search">
+            <SearchBar />
+          </div>
           <div className="segmented segmented--icons" role="tablist" aria-label="Event view">
             <button type="button" className={view === 'list' ? 'is-active' : ''} onClick={() => setView('list')} aria-label="List view">
               <List size={16} /> <span>List</span>

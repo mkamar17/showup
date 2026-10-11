@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowDownLeft, Eye, Landmark, Lock, LogOut, RotateCcw, Send, ShieldCheck, Unlink } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Landmark, Lock, LogOut, RotateCcw, Send, ShieldCheck, Undo2, Unlink } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
 import { formatDateTime, formatMoney, relativeTime } from '../api/format'
+import { moneyRecord } from '../api/eventLogic'
 import Avatar from '../components/Avatar'
 import ConfirmModal from '../components/ConfirmModal'
 import StarlingBar from '../components/StarlingBar'
@@ -135,36 +136,26 @@ function BankingTab() {
 }
 
 function WalletTab() {
-  const { me, state, now, toast, demoAddFunds, disconnectStarling } = useApp()
+  const { me, state, toast, demoAddFunds, disconnectStarling } = useApp()
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const sb = me.starling
-  const won = state.transactions.filter((t) => t.type === 'payout').reduce((sum, t) => sum + t.amount, 0)
+  const record = moneyRecord(state.events, ME_ID)
   const heldEvents = state.events
     .filter((e) => !e.settled && e.members[ME_ID]?.status === 'committed')
     .sort((a, b) => a.startAt - b.startAt)
 
   return (
     <div className="wallet">
-      <StarlingBar />
+      <StarlingBar showBalance />
 
+      {/* Your show up! money: what's at stake now, then your track record */}
       <div className="spaces-row">
-        <div className="space-card space-card--white">
-          <span className="space-card__label">
-            <Landmark size={18} /> Starling main account
-          </span>
-          <strong className="space-card__amount">{sb ? formatMoney(me.balance) : '—'}</strong>
-          <small className="muted">{sb ? `Live balance · synced ${relativeTime(sb.lastSyncedAt, now)}` : 'Connect Starling to see your balance'}</small>
-          <span className="space-card__tag">
-            <Eye size={12} /> Read-only in Show up!
-          </span>
-        </div>
-
         <div className="space-card space-card--mustard">
           <span className="space-card__label">
-            <Lock size={18} /> Show up! Commitments Space
+            <Lock size={18} /> Held now
           </span>
           <strong className="space-card__amount">{formatMoney(me.held)}</strong>
-          <small>A Space inside your Starling account · held until settlement</small>
+          <small>In your Show up! Space inside Starling · held until settlement</small>
           <div className="space-breakdown">
             {heldEvents.length === 0 && <p>Nothing held right now</p>}
             {heldEvents.map((e) => (
@@ -179,15 +170,35 @@ function WalletTab() {
           </div>
         </div>
 
+        <div className="space-card space-card--white">
+          <span className="space-card__label">
+            <Undo2 size={18} /> Returned
+          </span>
+          <strong className="space-card__amount">{formatMoney(record.returned)}</strong>
+          <small className="muted">
+            Showed up {record.showedUp} time{record.showedUp === 1 ? '' : 's'} · commitments back in your main account
+          </small>
+        </div>
+
         <div className="space-card space-card--wine">
           <span className="space-card__label">
-            <ArrowDownLeft size={18} /> Won from no-shows
+            <ArrowDownLeft size={18} /> Earned
           </span>
-          <strong className="space-card__amount">{formatMoney(won)}</strong>
-          <small>Paid into your main account</small>
+          <strong className="space-card__amount">{formatMoney(record.earned)}</strong>
+          <small>Your share from friends who didn’t show</small>
           <span className="space-card__tag">
             <Send size={12} /> Faster Payments
           </span>
+        </div>
+
+        <div className="space-card space-card--white">
+          <span className="space-card__label">
+            <ArrowUpRight size={18} /> Lost
+          </span>
+          <strong className="space-card__amount">{formatMoney(record.lost)}</strong>
+          <small className="muted">
+            {record.missed === 0 ? 'Never missed an event — nice' : `Missed ${record.missed} event${record.missed === 1 ? '' : 's'} · paid to those who came`}
+          </small>
         </div>
       </div>
 

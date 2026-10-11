@@ -1,127 +1,120 @@
+// Memories: the photos people captured at the events they joined. Every event
+// is its own collection automatically; there are no albums to manage.
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Images, Pencil, Trash2 } from 'lucide-react'
+import { ArrowRight, ImagePlus, Images } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import { formatDate, formatMoney } from '../api/format'
+import { ME_ID } from '../api/constants'
+import { photosForEvent, visibleMemories } from '../api/eventLogic'
+import { formatDate } from '../api/format'
 import ActivityIcon from '../components/ActivityIcon'
 import { AvatarStack } from '../components/Avatar'
-import ConfirmModal from '../components/ConfirmModal'
+import AddPhotosModal from '../components/AddPhotosModal'
+import { PhotoStrip } from '../components/MemoryPhotos'
 import '../styles/memories.css'
 
-function MemoryCard({ memory }) {
-  const { state, updateMemory, deleteMemory } = useApp()
-  const [editing, setEditing] = useState(false)
-  const [note, setNote] = useState(memory.note)
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const users = (ids) => ids.map((id) => state.users[id]).filter(Boolean)
+function MemoryCard({ memory, photos }) {
+  const { state } = useApp()
+  const contributors = [...new Set(photos.map((p) => p.uploadedBy))].map((id) => state.users[id]).filter(Boolean)
 
   return (
-    <article className="memory-card">
-      <div className="memory-card__top">
-        <span className="memory-card__icon">
-          <ActivityIcon activity={memory.activity} size={24} />
-        </span>
-        <div>
-          <h3>{memory.title}</h3>
-          <p className="muted small">
-            {formatDate(memory.date, { weekday: 'long', day: 'numeric', month: 'long' })} · {memory.venueName}
-          </p>
+    <Link to={`/memories/${memory.eventId}`} className="memory-card">
+      <PhotoStrip photos={photos} max={3} variant="mosaic" />
+      <div className="memory-card__body">
+        <h3>{memory.title}</h3>
+        <p className="muted small">
+          {formatDate(memory.date, { weekday: 'short', day: 'numeric', month: 'long' })} · {memory.venueName}
+        </p>
+        {memory.note && <p className="memory-card__note">“{memory.note}”</p>}
+        <div className="memory-card__foot">
+          <span className="memory-card__people">
+            <AvatarStack users={contributors} size={26} max={4} />
+            <span className="muted small">
+              {photos.length} photo{photos.length === 1 ? '' : 's'} · {memory.attendees.length} showed up
+            </span>
+          </span>
+          <span className="memory-card__open">
+            View <ArrowRight size={15} />
+          </span>
         </div>
-        <span className={`amount ${memory.myResult > 0 ? 'amount--plus' : memory.myResult < 0 ? 'amount--minus' : ''}`}>
-          {memory.myResult === 0 ? '±£0.00' : formatMoney(memory.myResult, { sign: true })}
-        </span>
       </div>
-
-      <div className="memory-card__people">
-        <div>
-          <small>Showed up</small>
-          {memory.attendees.length ? <AvatarStack users={users(memory.attendees)} /> : <span className="muted small">Nobody</span>}
-        </div>
-        {memory.noShows.length > 0 && (
-          <div>
-            <small>No-shows</small>
-            <AvatarStack users={users(memory.noShows)} />
-          </div>
-        )}
-      </div>
-
-      {editing ? (
-        <div className="memory-card__edit">
-          <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} maxLength={280} placeholder="Add a note…" autoFocus />
-          <div>
-            <button
-              type="button"
-              className="btn btn--primary btn--sm"
-              onClick={() => {
-                updateMemory(memory.id, note.trim())
-                setEditing(false)
-              }}
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="btn btn--ghost btn--sm"
-              onClick={() => {
-                setNote(memory.note)
-                setEditing(false)
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ) : (
-        <p className={`memory-card__note${memory.note ? '' : ' is-empty'}`}>{memory.note || 'No note yet — add one to remember the day.'}</p>
-      )}
-
-      <div className="memory-card__actions">
-        {state.events.some((e) => e.id === memory.eventId) && (
-          <Link to={`/events/${memory.eventId}/settlement`} className="link-btn">
-            Settlement
-          </Link>
-        )}
-        <button type="button" className="icon-btn icon-btn--outline" onClick={() => setEditing(true)} aria-label="Edit note">
-          <Pencil size={15} />
-        </button>
-        <button type="button" className="icon-btn icon-btn--outline" onClick={() => setConfirmDelete(true)} aria-label="Delete memory">
-          <Trash2 size={15} />
-        </button>
-      </div>
-
-      {confirmDelete && (
-        <ConfirmModal
-          title="Delete this memory?"
-          message="The settlement record stays; only this memory card is removed."
-          confirmLabel="Delete"
-          danger
-          onConfirm={() => deleteMemory(memory.id)}
-          onClose={() => setConfirmDelete(false)}
-        />
-      )}
-    </article>
+    </Link>
   )
 }
 
 export default function MemoriesPage() {
   const { state } = useApp()
-  const memories = [...state.memories].sort((a, b) => b.date - a.date)
+  const [adding, setAdding] = useState(null)
+  const memories = visibleMemories(state.memories, ME_ID).map((m) => ({ memory: m, photos: photosForEvent(state.photos, m.eventId) }))
+  const withPhotos = memories.filter((m) => m.photos.length)
+  // Recent events nobody has added photos to yet (only ones that still exist).
+  const waiting = memories.filter((m) => !m.photos.length && state.events.some((e) => e.id === m.memory.eventId)).slice(0, 3)
+
+  // Group by month, newest first: the shape a yearly recap can build on later.
+  const months = []
+  withPhotos.forEach((m) => {
+    const label = formatDate(m.memory.date, { month: 'long', year: 'numeric' })
+    const group = months.at(-1)
+    if (group?.label === label) group.items.push(m)
+    else months.push({ label, items: [m] })
+  })
 
   return (
     <div className="memories">
-      <p className="muted">Every settled event becomes a memory — who turned up, who didn’t, and how it went.</p>
-      {memories.length === 0 ? (
+      <header className="memories__head">
+        <h2>Memories</h2>
+        <p className="muted">Moments worth keeping, captured by everyone who showed up.</p>
+      </header>
+
+      {waiting.length > 0 && (
+        <section className="memory-nudge">
+          <h3>
+            <ImagePlus size={18} /> Got photos from these?
+          </h3>
+          <ul>
+            {waiting.map(({ memory }) => (
+              <li key={memory.id}>
+                <span className="memory-nudge__icon">
+                  <ActivityIcon activity={memory.activity} size={18} />
+                </span>
+                <Link to={`/memories/${memory.eventId}`} className="memory-nudge__text">
+                  <strong>{memory.title}</strong>
+                  <small>{formatDate(memory.date, { weekday: 'short', day: 'numeric', month: 'short' })}</small>
+                </Link>
+                <button type="button" className="btn btn--soft btn--sm" onClick={() => setAdding(memory)}>
+                  Add photos
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {withPhotos.length === 0 ? (
         <div className="empty-state">
           <Images size={32} />
-          <p>No memories yet. They appear here after an event is settled.</p>
+          <strong>No memories yet</strong>
+          <p>Show up to an event, take some photos, and they’ll appear here.</p>
+          {waiting.length === 0 && (
+            <Link to="/" className="btn btn--primary">
+              View events
+            </Link>
+          )}
         </div>
       ) : (
-        <div className="memories__grid">
-          {memories.map((m) => (
-            <MemoryCard key={m.id} memory={m} />
-          ))}
-        </div>
+        months.map((group) => (
+          <section key={group.label} className="memories__month">
+            <h3 className="memories__month-label">{group.label}</h3>
+            <div className="memories__grid">
+              {group.items.map(({ memory, photos }) => (
+                <MemoryCard key={memory.id} memory={memory} photos={photos} />
+              ))}
+            </div>
+          </section>
+        ))
       )}
+
+      {adding && <AddPhotosModal eventId={adding.eventId} title={adding.title} onClose={() => setAdding(null)} />}
     </div>
   )
 }

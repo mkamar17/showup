@@ -201,8 +201,8 @@ export default function SettlementPage() {
               <button type="button" className="btn btn--primary" onClick={() => updateMemory(memory.id, note.trim())}>
                 Save memory
               </button>
-              <Link to="/memories" className="btn btn--ghost">
-                See all memories
+              <Link to={`/memories/${event.id}`} className="btn btn--ghost">
+                Add photos
               </Link>
             </div>
           </section>

@@ -1,4 +1,4 @@
-/* App shell: sidebar (brand, search, nav, balance, notifications, profile) */
+/* App shell: sidebar (brand, nav, balance, notifications, profile) */
 .app-shell {
   --sb-collapsed: 84px; /* 48px of controls + 18px padding either side */
   --sb-expanded: 260px;
@@ -72,42 +72,6 @@
   max-width: none;
   height: auto;
   border-radius: 10px;
-}
-
-/* Search on the dark sidebar */
-.sidebar .searchbar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 14px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.sidebar .searchbar input[type="search"] {
-  width: 100%;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  padding: 11px 0;
-  color: #fff;
-  outline: none;
-}
-
-.sidebar .searchbar input[type="search"]::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.sidebar .searchbar:focus-within {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.searchbar__results {
-  left: 0;
-  right: 0;
-  color: var(--text);
 }
 
 /* Nav links */
@@ -462,7 +426,6 @@
   .sidebar__link svg,
   .sidebar__balance svg,
   .notif__trigger svg,
-  .sidebar .searchbar svg,
   .sidebar .avatar {
     flex-shrink: 0;
   }
@@ -471,8 +434,7 @@
   .sidebar__label,
   .sidebar__balance-text,
   .sidebar__me-text,
-  .notif__label,
-  .sidebar .searchbar input[type="search"] {
+  .notif__label {
     opacity: 1;
     transition: opacity 0.18s 0.06s;
   }
@@ -480,8 +442,7 @@
   .sidebar:not(.is-expanded) .sidebar__label,
   .sidebar:not(.is-expanded) .sidebar__balance-text,
   .sidebar:not(.is-expanded) .sidebar__me-text,
-  .sidebar:not(.is-expanded) .notif__label,
-  .sidebar:not(.is-expanded) .searchbar input[type="search"] {
+  .sidebar:not(.is-expanded) .notif__label {
     opacity: 0;
     pointer-events: none;
     transition-delay: 0s;
@@ -489,18 +450,6 @@
 
   /* Collapsed geometry: the rail's inner width is 48px, so each control is
      sized to 48px and its icon sits dead centre */
-  .sidebar:not(.is-expanded) .searchbar {
-    gap: 0;
-    padding: 0 15px;
-  }
-
-  .sidebar:not(.is-expanded) .searchbar input[type="search"] {
-    width: 0;
-    min-width: 0;
-    padding-left: 0;
-    padding-right: 0;
-  }
-
   .sidebar__balance {
     padding: 10px 15px;
   }
@@ -633,25 +582,6 @@
     gap: 6px;
     padding: 0;
     border: none;
-  }
-
-  .sidebar__search {
-    order: 3;
-    width: 100%;
-  }
-
-  .sidebar .searchbar {
-    background: var(--surface);
-    box-shadow: var(--shadow);
-    color: var(--muted);
-  }
-
-  .sidebar .searchbar input[type="search"] {
-    color: var(--text);
-  }
-
-  .sidebar .searchbar input[type="search"]::placeholder {
-    color: var(--muted);
   }
 
   .sidebar__balance {

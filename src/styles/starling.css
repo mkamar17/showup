@@ -397,8 +397,14 @@ code,
 /* ---------- Spaces ---------- */
 .spaces-row {
   display: grid;
-  grid-template-columns: 1fr 1.25fr 1fr;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
   gap: 18px;
+}
+
+@media (max-width: 1200px) {
+  .spaces-row {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .space-card {
@@ -662,10 +668,13 @@ code,
   margin-top: 2px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   .spaces-row {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 900px) {
 
   .money-flow {
     grid-template-columns: 1fr 1fr;

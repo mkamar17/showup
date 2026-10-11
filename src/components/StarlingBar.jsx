@@ -2,12 +2,12 @@
 import { useState } from 'react'
 import { BadgeCheck, Landmark, RefreshCw } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import { relativeTime } from '../api/format'
+import { formatMoney, relativeTime } from '../api/format'
 import Modal from './Modal'
 import StarlingConnectModal, { PermissionList } from './StarlingConnectModal'
 import '../styles/starling.css'
 
-export default function StarlingBar({ compact = false }) {
+export default function StarlingBar({ compact = false, showBalance = false }) {
   const { me, now, syncStarling } = useApp()
   const [connecting, setConnecting] = useState(false)
   const [showPerms, setShowPerms] = useState(false)
@@ -46,6 +46,7 @@ export default function StarlingBar({ compact = false }) {
         <span>
           {compact ? `Account ••••${sb.accountLast4}` : `Personal account ••••${sb.accountLast4} · sort code ••-••-${sb.sortLast2} · connected securely via Starling (OAuth)`}
         </span>
+        {showBalance && <span>Main account balance {formatMoney(me.balance)} · read-only in Show up!</span>}
       </div>
       <button type="button" className="bank-bar__sync" onClick={syncStarling} title="Refresh from Starling">
         <RefreshCw size={14} /> Synced {relativeTime(sb.lastSyncedAt, now)}

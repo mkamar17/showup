@@ -1,94 +1,275 @@
+/* Memories: event photo collections, grouped by month */
 .memories {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.memories__head h2 {
+  font-size: 2rem;
+}
+
+.memories__month-label {
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.memories__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+/* "Got photos from these?" nudge for events without any yet */
+.memory-nudge {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  border-left: 6px solid var(--mustard);
+}
+
+.memory-nudge h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.98rem;
+}
+
+.memory-nudge h3 svg {
+  color: var(--mustard-dark);
+}
+
+.memory-nudge ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.memory-nudge li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.memory-nudge__icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--wine-soft);
+  color: var(--wine);
+  flex-shrink: 0;
+}
+
+.memory-nudge__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.memory-nudge__text small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+/* Memory card: photo mosaic first, then the event it came from */
+.memory-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.memory-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.memory-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 8px 6px;
+}
+
+.memory-card__note {
+  margin-top: 4px;
+  font-size: 0.86rem;
+  font-style: italic;
+  color: var(--text);
+}
+
+.memory-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.memory-card__people {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.memory-card__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--wine);
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- One memory ---------- */
+.memory-detail {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.memories__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-}
-
-.memory-card {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 22px;
-  box-shadow: var(--shadow);
+.memory-detail__head {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border-top: 6px solid var(--mustard);
-}
-
-.memory-card__top {
-  display: flex;
-  gap: 14px;
+  flex-wrap: wrap;
   align-items: flex-start;
+  gap: 18px;
 }
 
-.memory-card__top > div {
-  flex: 1;
-  min-width: 0;
-}
-
-.memory-card__icon {
+.memory-detail__icon {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
   background: var(--wine);
   color: #fff;
   flex-shrink: 0;
 }
 
-.memory-card__people {
+.memory-detail__info {
+  flex: 1;
+  min-width: 240px;
   display: flex;
-  gap: 28px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.memory-card__people > div {
+.memory-detail__info h2 {
+  font-size: 1.6rem;
+}
+
+.memory-detail__meta {
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.memory-card__people small {
   color: var(--muted);
-  font-size: 0.76rem;
-}
-
-.memory-card__note {
-  background: var(--surface-2);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
   font-size: 0.9rem;
-  font-style: italic;
 }
 
-.memory-card__note.is-empty {
-  color: var(--faint);
-}
-
-.memory-card__edit {
+.memory-detail__meta li {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.memory-card__edit > div {
-  display: flex;
-  gap: 8px;
-}
-
-.memory-card__actions {
-  display: flex;
-  justify-content: flex-end;
   align-items: center;
   gap: 8px;
 }
 
-.memory-card__actions .link-btn {
-  margin-right: auto;
+.memory-detail__meta svg {
+  flex-shrink: 0;
+}
+
+.memory-detail__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memory-detail__photos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* One-line caption about the day (the memory's note) */
+.memory-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: left;
+}
+
+.memory-caption svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.memory-caption.is-empty {
+  color: var(--faint);
+  font-style: normal;
+}
+
+.memory-caption--editing {
+  flex-direction: column;
+  align-items: stretch;
+  font-style: normal;
+}
+
+.memory-caption--editing > div {
+  display: flex;
+  gap: 8px;
+}
+
+.memory-locked {
+  margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+  .memories__head h2 {
+    font-size: 1.6rem;
+  }
+
+  .memory-detail__info h2 {
+    font-size: 1.35rem;
+  }
+
+  .memory-detail__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+
+  .memory-detail__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .memory-detail__actions .btn {
+    flex: 1;
+  }
 }

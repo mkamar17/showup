@@ -104,19 +104,72 @@ export function createSeedState() {
   }
   fiveASide.settlement = { ...computeSettlement(fiveASide), settledAt: pastTimes.graceEndsAt }
 
+  // 3) Past: Saturday doubles, everyone made it, and nobody has added photos
+  //    yet, so the app nudges you to start the memory.
+  const doublesDate = toDateInput(new Date(now - 3 * DAY))
+  const doublesTimes = buildEventTimes(doublesDate, '10:00', 10)
+  const doubles = {
+    id: 'evt_doubles',
+    seriesId: 'evt_doubles',
+    title: 'Saturday Doubles',
+    activity: 'tennis',
+    date: doublesDate,
+    time: '10:00',
+    ...doublesTimes,
+    graceMinutes: 10,
+    radius: 150,
+    amount: 400,
+    repeatWeekly: false,
+    venue: { name: 'Regent’s Park Tennis Centre', address: 'York Bridge, London NW1', lat: 51.5246, lng: -0.1535 },
+    adminId: 'u_levi',
+    members: {
+      u_levi: { ...newMember('committed'), checkedInAt: doublesTimes.startAt - 6 * MIN, checkInDistance: 18 },
+      [ME_ID]: { ...newMember('committed'), checkedInAt: doublesTimes.startAt - 2 * MIN, checkInDistance: 35 },
+      u_max: { ...newMember('committed'), checkedInAt: doublesTimes.startAt + 3 * MIN, checkInDistance: 52 },
+      u_grisha: { ...newMember('committed'), checkedInAt: doublesTimes.startAt + 8 * MIN, checkInDistance: 44 },
+    },
+    settled: true,
+    createdAt: now - 7 * DAY,
+  }
+  doubles.settlement = { ...computeSettlement(doubles), settledAt: doublesTimes.graceEndsAt }
+
+  // Sample photos for the 5-a-side memory, shared by the three who came.
+  // Image files are bundled illustrations (see photoStore SAMPLE_PHOTOS).
+  const shot = (id, sample, uploadedBy, minutesAfter, width, height) => ({
+    id,
+    eventId: 'evt_5aside',
+    uploadedBy,
+    sample,
+    width,
+    height,
+    createdAt: pastTimes.startAt + minutesAfter * MIN,
+  })
+  const photos = [
+    shot('pho_1', 'floodlights', ME_ID, 4, 1200, 900),
+    shot('pho_2', 'huddle', 'u_max', 9, 900, 1200),
+    shot('pho_3', 'ball', 'u_levi', 30, 1200, 900),
+    shot('pho_4', 'scoreboard', ME_ID, 72, 1200, 900),
+    shot('pho_5', 'boots', 'u_levi', 80, 900, 1200),
+    shot('pho_6', 'sunset', 'u_max', 95, 1200, 900),
+  ]
+
   return {
     session: null,
     users,
     friends: ['u_max', 'u_grisha', 'u_levi'],
-    events: [run, fiveASide],
+    events: [run, fiveASide, doubles],
+    photos,
     notifications: [
       { id: 'ntf_0', text: 'Connect your Starling account so you can commit to events.', link: '/profile?tab=banking', kind: 'invite', read: false, time: now - 5 * MIN },
       { id: 'ntf_1', text: 'Max Stone invited you to Sunday Morning Run (£3.00 commitment).', link: '/events/evt_run', kind: 'invite', read: false, time: now - 2 * DAY },
       { id: 'ntf_2', text: 'You showed up to Thursday 5-a-side — £6.67 went back into your Starling account.', link: '/events/evt_5aside/settlement', kind: 'success', read: true, time: pastTimes.graceEndsAt },
+      { id: 'ntf_4', text: 'Got photos from Saturday Doubles? Add them to the memory.', link: '/memories/evt_doubles', kind: 'info', read: false, time: doublesTimes.graceEndsAt },
       { id: 'ntf_3', text: 'Levi Pattrick accepted your friend request.', link: '/community', kind: 'info', read: true, time: now - 12 * DAY },
     ],
     // Starling activity Show up! has initiated (newest first).
     transactions: [
+      { id: 'tx_5', type: 'refund', amount: 400, space: 'available', status: 'completed', label: 'Commitment returned · Saturday Doubles', route: 'Show up! Space → Main', reference: 'SU-SD-' + refDate(doublesTimes.startAt), eventId: 'evt_doubles', time: doublesTimes.graceEndsAt },
+      { id: 'tx_4', type: 'hold', amount: -400, space: 'available', status: 'completed', label: 'Committed to Saturday Doubles', route: 'Main → Show up! Space', reference: 'SU-SD-' + refDate(doublesTimes.startAt), eventId: 'evt_doubles', time: now - 6 * DAY },
       { id: 'tx_3', type: 'payout', amount: 167, space: 'available', status: 'completed', label: 'Penalty share · Thursday 5-a-side', sub: 'from Grisha', route: 'Faster Payment → Main', reference: 'SU-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt + MIN },
       { id: 'tx_2', type: 'refund', amount: 500, space: 'available', status: 'completed', label: 'Commitment returned · Thursday 5-a-side', route: 'Show up! Space → Main', reference: 'SU-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: pastTimes.graceEndsAt },
       { id: 'tx_1', type: 'hold', amount: -500, space: 'available', status: 'completed', label: 'Committed to Thursday 5-a-side', route: 'Main → Show up! Space', reference: 'SU-T5-' + refDate(pastTimes.startAt), eventId: 'evt_5aside', time: now - 13 * DAY },
@@ -129,11 +182,26 @@ export function createSeedState() {
         activity: 'football',
         date: pastTimes.startAt,
         venueName: 'Paddington Recreation Ground',
+        committed: [ME_ID, 'u_max', 'u_levi', 'u_grisha'],
         attendees: [ME_ID, 'u_max', 'u_levi'],
         noShows: ['u_grisha'],
         myResult: 167,
         note: 'Close one — 7-6 at full time. Grisha owes us a rematch.',
         createdAt: pastTimes.graceEndsAt,
+      },
+      {
+        id: 'mem_2',
+        eventId: 'evt_doubles',
+        title: 'Saturday Doubles',
+        activity: 'tennis',
+        date: doublesTimes.startAt,
+        venueName: 'Regent’s Park Tennis Centre',
+        committed: [ME_ID, 'u_levi', 'u_max', 'u_grisha'],
+        attendees: [ME_ID, 'u_levi', 'u_max', 'u_grisha'],
+        noShows: [],
+        myResult: 0,
+        note: '',
+        createdAt: doublesTimes.graceEndsAt,
       },
     ],
   }

@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CircleCheck, Clock, Crown, Landmark, MapPin, Pencil, PoundSterling, Repeat, ShieldCheck, Timer, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CircleCheck, Clock, Crown, ImagePlus, Images, Landmark, MapPin, Pencil, PoundSterling, Repeat, ShieldCheck, Timer, Trash2 } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
-import { canCommitInPhase, eventReference, getPhase } from '../api/eventLogic'
+import { canCommitInPhase, canShareMemories, eventReference, getPhase, photosForEvent } from '../api/eventLogic'
 import { formatDateTime, formatMoney } from '../api/format'
 import ActivityIcon from '../components/ActivityIcon'
 import { PhasePill } from '../components/StatusPill'
@@ -17,7 +17,44 @@ import ConfirmModal from '../components/ConfirmModal'
 import { AddPeopleModal } from '../components/InviteModal'
 import CommitModal from '../components/CommitModal'
 import StarlingConnectModal from '../components/StarlingConnectModal'
+import AddPhotosModal from '../components/AddPhotosModal'
+import { PhotoStrip } from '../components/MemoryPhotos'
 import '../styles/eventDetail.css'
+
+// After the event: its shared photo memory, and the way to add to it.
+function EventMemory({ event, onAdd }) {
+  const { state } = useApp()
+  const photos = photosForEvent(state.photos, event.id)
+  const people = new Set(photos.map((p) => p.uploadedBy)).size
+
+  return (
+    <section className="card event-memory">
+      <div className="card__head">
+        <h2>
+          <Images size={18} /> Memories
+        </h2>
+        {photos.length > 0 && (
+          <Link to={`/memories/${event.id}`} className="link-btn">
+            View all <ArrowRight size={14} />
+          </Link>
+        )}
+      </div>
+      {photos.length > 0 ? (
+        <Link to={`/memories/${event.id}`} className="event-memory__preview">
+          <PhotoStrip photos={photos} max={4} />
+          <span className="muted small">
+            {photos.length} photo{photos.length === 1 ? '' : 's'} from {people} {people === 1 ? 'person' : 'people'}
+          </span>
+        </Link>
+      ) : (
+        <p className="muted">No photos yet. Add what you captured; everyone who joined will see them.</p>
+      )}
+      <button type="button" className="btn btn--primary" onClick={onAdd}>
+        <ImagePlus size={17} /> Add photos
+      </button>
+    </section>
+  )
+}
 
 export default function EventDetailPage() {
   const { eventId } = useParams()
@@ -28,6 +65,7 @@ export default function EventDetailPage() {
   const [confirmCommit, setConfirmCommit] = useState(false)
   const [addingPeople, setAddingPeople] = useState(false)
   const [connecting, setConnecting] = useState(false)
+  const [addingPhotos, setAddingPhotos] = useState(false)
 
   const event = state.events.find((e) => e.id === eventId)
   if (!event) {
@@ -207,6 +245,7 @@ export default function EventDetailPage() {
             <DelayProtectionCard event={event} phase={phase} isAdmin={isAdmin} />
           )}
           {isAdmin && !event.settled && <DemoControls event={event} phase={phase} />}
+          {event.settled && canShareMemories(event, ME_ID) && <EventMemory event={event} onAdd={() => setAddingPhotos(true)} />}
         </div>
 
         <div className="event-detail__col">
@@ -216,6 +255,7 @@ export default function EventDetailPage() {
 
       {editing && <EventForm event={event} onClose={() => setEditing(false)} />}
       {addingPeople && <AddPeopleModal event={event} onClose={() => setAddingPeople(false)} />}
+      {addingPhotos && <AddPhotosModal eventId={event.id} title={event.title} onClose={() => setAddingPhotos(false)} />}
       {confirmCommit && <CommitModal event={event} onClose={() => setConfirmCommit(false)} />}
       {connecting && <StarlingConnectModal onClose={() => setConnecting(false)} onConnected={() => setConfirmCommit(true)} />}
       {confirmDelete && (

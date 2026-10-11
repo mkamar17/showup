@@ -55,6 +55,58 @@ export function memberCounts(event) {
   }
 }
 
+// A user's track record across settled events, from each event's stored
+// settlement (amounts in pence):
+// - returned: commitments given back (showed up, or nobody checked in)
+// - earned:   shares of no-shows' commitments on top of that
+// - lost:     commitments forfeited by not showing up
+export function moneyRecord(events, userId) {
+  const record = { returned: 0, earned: 0, lost: 0, showedUp: 0, missed: 0 }
+  events.forEach((e) => {
+    const s = e.settled && e.settlement
+    if (!s || !s.committed.includes(userId)) return
+    const payout = s.payouts[userId] || 0
+    if (payout > 0) {
+      record.returned += s.amount
+      record.earned += payout - s.amount
+      if (s.attendees.includes(userId)) record.showedUp += 1
+    } else {
+      record.lost += s.amount
+      record.missed += 1
+    }
+  })
+  return record
+}
+
+// Memories: everyone who joined (committed to) an event can see its photos
+// and add their own, whether or not they made it on the day.
+export function canShareMemories(event, userId) {
+  return event?.members[userId]?.status === 'committed'
+}
+
+// Memories a user can see: ones for events they joined, newest first.
+// (A record without a `committed` list predates it and is the user's own.)
+export function visibleMemories(memories, userId) {
+  return memories.filter((m) => !m.committed || m.committed.includes(userId)).sort((a, b) => b.date - a.date)
+}
+
+// An event's photos, oldest first (the order the day happened in).
+export function photosForEvent(photos, eventId) {
+  return photos.filter((p) => p.eventId === eventId).sort((a, b) => a.createdAt - b.createdAt)
+}
+
+// How a settled event went for one person: what happened and what it meant
+// for their money (pence). `kind` is showed | missed | refunded | none.
+export function settledOutcome(event, userId) {
+  const s = event.settlement
+  if (!s || !s.committed.includes(userId)) return { kind: 'none', net: 0 }
+  const payout = s.payouts[userId] || 0
+  const net = payout - s.amount
+  if (s.refundedAll) return { kind: 'refunded', net }
+  if (s.attendees.includes(userId)) return { kind: 'showed', net }
+  return { kind: 'missed', net }
+}
+
 // Does this event (or its weekly repeat) fall on yyyy-mm-dd?
 export function occursOn(event, dateStr) {
   if (event.date === dateStr) return 'actual'
@@ -137,8 +189,10 @@ export function settleEventInState(state, eventId, now = Date.now()) {
     next = addNotification(next, `${event.title} has been settled.`, link, 'info', now)
   }
 
-  // Memory (last step of the journey).
-  if (event.members[ME_ID]) {
+  // Memory (last step of the journey): the event becomes its own photo
+  // collection, so nudge the people who joined to add what they captured.
+  if (result.committed.includes(ME_ID) && !next.memories.some((m) => m.eventId === eventId)) {
+    next = addNotification(next, `Got photos from ${event.title}? Add them to the memory.`, `/memories/${eventId}`, 'info', now)
     next = {
       ...next,
       memories: [
@@ -149,6 +203,7 @@ export function settleEventInState(state, eventId, now = Date.now()) {
           activity: event.activity,
           date: event.startAt,
           venueName: event.venue.name,
+          committed: result.committed,
           attendees: result.attendees,
           noShows: result.refundedAll ? [] : result.noShows,
           myResult: (result.payouts[ME_ID] || 0) - (result.committed.includes(ME_ID) ? event.amount : 0),

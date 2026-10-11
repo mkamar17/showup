@@ -1,4 +1,4 @@
-// Sidebar: brand, search, navigation, balance, notifications and profile.
+// Sidebar: brand, navigation, money held, notifications and profile.
 // Desktop: a collapsed icon rail that peeks open on hover/focus (floating over
 // the page) and can be pinned open (pushing the page). The pin is remembered.
 // Mobile: it becomes a compact header plus a bottom tab bar (no toggle).
@@ -10,15 +10,14 @@ import {
   House,
   Images,
   Landmark,
+  Lock,
   LogOut,
   User,
   Users,
-  Wallet,
 } from "lucide-react";
 import { useApp } from "../api/useApp";
 import { formatMoney } from "../api/format";
 import Avatar from "./Avatar";
-import SearchBar from "./SearchBar";
 import NotificationDropdown from "./NotificationDropdown";
 import showupBannerWine from "../assets/showup-banner-wine-cropped.png";
 import showupBanner from "../assets/showup-banner-white-cropped.png";
@@ -51,7 +50,6 @@ export default function NavBar() {
   const [isFocused, setIsFocused] = useState(false);
 
   const hoverTimer = useRef(null);
-  const searchRef = useRef(null);
   // After unpinning, the pointer is still over the sidebar. Ignore hover until
   // it leaves, otherwise the peek keeps the sidebar open and only the page moves.
   const suppressHover = useRef(false);
@@ -127,14 +125,6 @@ export default function NavBar() {
     if (!e.currentTarget.contains(e.relatedTarget)) setIsFocused(false);
   };
 
-  // Tapping the search icon on the collapsed rail (e.g. a tablet) opens it
-  // and focuses the field. Focus keeps it open until focus leaves the sidebar.
-  const handleSearchClick = () => {
-    if (isExpanded) return;
-    setIsFocused(true);
-    searchRef.current?.querySelector("input")?.focus();
-  };
-
   return (
     <div className={`sidebar-slot${isPinned ? " is-pinned" : ""}`}>
       <aside
@@ -173,14 +163,6 @@ export default function NavBar() {
           </picture>
         </button>
 
-        <div
-          className="sidebar__search"
-          ref={searchRef}
-          onClick={handleSearchClick}
-        >
-          <SearchBar />
-        </div>
-
         <nav className="sidebar__nav" aria-label="Main">
           <ul className="sidebar__links">
             {LINKS.map(({ to, label, icon: Icon, end }) => (
@@ -204,19 +186,18 @@ export default function NavBar() {
           <button
             type="button"
             className="sidebar__balance"
+            title={me.starling ? `${formatMoney(me.held)} held now` : undefined}
             onClick={() =>
               navigate(
                 me.starling ? "/profile?tab=wallet" : "/profile?tab=banking",
               )
             }
           >
-            {me.starling ? <Wallet size={18} /> : <Landmark size={18} />}
+            {me.starling ? <Lock size={18} /> : <Landmark size={18} />}
             <span className="sidebar__balance-text">
-              <small>
-                {me.starling ? "Starling balance" : "No bank connected"}
-              </small>
+              <small>{me.starling ? "Held now" : "No bank connected"}</small>
               <strong>
-                {me.starling ? formatMoney(me.balance) : "Connect Starling"}
+                {me.starling ? formatMoney(me.held) : "Connect Starling"}
               </strong>
             </span>
           </button>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CalendarDays } from 'lucide-react'
 import EventCard from './EventCard'
+import HistoryCard from './HistoryCard'
 
 export default function EventList({ events, onCreate }) {
   const [tab, setTab] = useState('upcoming')
@@ -15,13 +16,13 @@ export default function EventList({ events, onCreate }) {
           Upcoming ({upcoming.length})
         </button>
         <button type="button" className={tab === 'past' ? 'is-active' : ''} onClick={() => setTab('past')}>
-          Past ({past.length})
+          History ({past.length})
         </button>
       </div>
       {list.length === 0 ? (
         <div className="empty-state">
           <CalendarDays size={32} />
-          <p>{tab === 'upcoming' ? 'No upcoming events yet.' : 'No past events yet.'}</p>
+          <p>{tab === 'upcoming' ? 'No upcoming events yet.' : 'Events you’ve taken part in will show up here.'}</p>
           {tab === 'upcoming' && (
             <button type="button" className="btn btn--primary" onClick={onCreate}>
               Create your first event
@@ -29,10 +30,8 @@ export default function EventList({ events, onCreate }) {
           )}
         </div>
       ) : (
-        <div className="event-grid">
-          {list.map((e) => (
-            <EventCard key={e.id} event={e} />
-          ))}
+        <div className={`event-grid${tab === 'upcoming' ? '' : ' event-grid--history'}`}>
+          {list.map((e) => (tab === 'upcoming' ? <EventCard key={e.id} event={e} /> : <HistoryCard key={e.id} event={e} />))}
         </div>
       )}
     </div>

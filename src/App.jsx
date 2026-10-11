@@ -7,6 +7,7 @@ import EventDetailPage from './pages/EventDetailPage'
 import SettlementPage from './pages/SettlementPage'
 import CommunityPage from './pages/CommunityPage'
 import MemoriesPage from './pages/MemoriesPage'
+import MemoryDetailPage from './pages/MemoryDetailPage'
 import ProfilePage from './pages/ProfilePage'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/events/:eventId/settlement" element={<SettlementPage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/memories" element={<MemoriesPage />} />
+        <Route path="/memories/:eventId" element={<MemoryDetailPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

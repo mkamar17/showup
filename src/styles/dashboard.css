@@ -124,10 +124,61 @@
 }
 
 .events-section__actions {
-  margin-left: auto;
+  flex: 1;
+  justify-content: flex-end;
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+/* Search sits beside the view toggle, matching its height */
+.dashboard__search {
+  flex: 0 1 280px;
+  min-width: 160px;
+}
+
+.searchbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 14px;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  color: var(--muted);
+}
+
+.searchbar svg {
+  flex-shrink: 0;
+}
+
+.searchbar input[type='search'] {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--text);
+  outline: none;
+  box-shadow: none;
+}
+
+.searchbar input[type='search']::placeholder {
+  color: var(--muted);
+}
+
+.searchbar:focus-within {
+  box-shadow: var(--shadow), 0 0 0 1.5px var(--wine-light);
+}
+
+.searchbar__results {
+  left: 0;
+  right: 0;
+  min-width: 260px;
+  color: var(--text);
 }
 
 .segmented--icons {
@@ -420,6 +471,119 @@
   }
 }
 
+/* Tablets and phones: controls get their own row under the title, and the
+   search fills whatever the toggle and create button leave */
+@media (max-width: 900px) {
+  .events-section__actions {
+    flex-basis: 100%;
+  }
+
+  .dashboard__search {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 .events-section__head h2 {
   font-size: 2rem;
+}
+
+/* ---------- History (the Past tab): a record of each event you joined ---------- */
+.event-grid--history {
+  padding-top: 0;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.history-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.history-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.history-card__top {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.history-card__top > div {
+  min-width: 0;
+}
+
+.history-card__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--wine);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.history-card__venue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.history-card__result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-card__people {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-card__memory {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  cursor: default;
+}
+
+.history-card__memory-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-card__memory-link > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: var(--wine);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.history-card__memory-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pill--danger-soft {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.history-card__memory-empty > span {
+  white-space: nowrap;
 }

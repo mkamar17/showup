@@ -456,3 +456,30 @@
     flex: 1;
   }
 }
+
+/* Memories (after the event): shared photos and the way to add more */
+.event-memory {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.event-memory .card__head {
+  margin-bottom: 0;
+}
+
+.event-memory .card__head .link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.event-memory__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-memory > .btn {
+  align-self: flex-start;
+}
