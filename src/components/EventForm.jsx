@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Lock, Repeat } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ACTIVITIES, GRACE_OPTIONS, ME_ID, RADIUS_MAX, RADIUS_MIN } from '../api/constants'
-import { toDateInput } from '../api/format'
+import { formatGrace, toDateInput } from '../api/format'
 import Modal from './Modal'
 import VenuePicker from './VenuePicker'
 import Avatar from './Avatar'
@@ -166,7 +166,7 @@ export default function EventForm({ event, onClose, onSaved }) {
 
         <div className="field">
           <span>Grace period</span>
-          <div className="segmented">
+          <div className="segmented segmented--fill">
             {GRACE_OPTIONS.map((m) => (
               <button
                 key={m}
@@ -174,7 +174,7 @@ export default function EventForm({ event, onClose, onSaved }) {
                 className={Number(form.graceMinutes) === m ? 'is-active' : ''}
                 onClick={() => setForm((f) => ({ ...f, graceMinutes: m }))}
               >
-                {m} min
+                {formatGrace(m)}
               </button>
             ))}
           </div>

@@ -575,11 +575,13 @@
     width: 164px;
   }
 
+  /* Logo on the left, held / notifications / profile pushed to the right */
   .sidebar__bottom {
     order: 2;
     flex-direction: row;
     align-items: center;
     gap: 6px;
+    margin-left: auto;
     padding: 0;
     border: none;
   }

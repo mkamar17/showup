@@ -23,18 +23,35 @@ export const CHECKIN_EARLY_MINUTES = 30
 // 10 min grace / 20 = 30 seconds.
 export const DEMO_GRACE_SPEED = 20
 
-export const GRACE_OPTIONS = [10, 12, 15]
+export const GRACE_OPTIONS = [10, 12, 15, 30, 60]
 
 export const RADIUS_MIN = 50
 export const RADIUS_MAX = 500
 
+// Event types: sports and social plans, A–Z, with "Other" always last.
 export const ACTIVITIES = [
-  { value: 'tennis', label: 'Tennis' },
-  { value: 'running', label: 'Running' },
+  { value: 'birthday', label: 'Birthday' },
+  { value: 'brunch', label: 'Brunch' },
+  { value: 'cinema', label: 'Cinema' },
+  { value: 'coffee', label: 'Coffee' },
+  { value: 'concert', label: 'Concert' },
   { value: 'cycling', label: 'Cycling' },
+  { value: 'dinner', label: 'Dinner' },
+  { value: 'drinks', label: 'Drinks' },
   { value: 'football', label: 'Football' },
+  { value: 'gaming', label: 'Game night' },
   { value: 'gym', label: 'Gym' },
-  { value: 'swimming', label: 'Swimming' },
   { value: 'hiking', label: 'Hiking' },
-  { value: 'other', label: 'Other' },
+  { value: 'museum', label: 'Museum or gallery' },
+  { value: 'party', label: 'Party' },
+  { value: 'picnic', label: 'Picnic' },
+  { value: 'running', label: 'Running' },
+  { value: 'study', label: 'Study session' },
+  { value: 'swimming', label: 'Swimming' },
+  { value: 'tennis', label: 'Tennis' },
+  { value: 'trip', label: 'Trip' },
+  { value: 'volunteering', label: 'Volunteering' },
+  { value: 'yoga', label: 'Yoga' },
 ]
+  .sort((a, b) => a.label.localeCompare(b.label))
+  .concat({ value: 'other', label: 'Other' })

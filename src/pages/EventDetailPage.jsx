@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, CircleCheck, Clock, Crown, ImagePlus, Images, La
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
 import { canCommitInPhase, canShareMemories, eventReference, getPhase, photosForEvent } from '../api/eventLogic'
-import { formatDateTime, formatMoney } from '../api/format'
+import { formatDateTime, formatGrace, formatMoney } from '../api/format'
 import ActivityIcon from '../components/ActivityIcon'
 import { PhasePill } from '../components/StatusPill'
 import CheckInPanel from '../components/CheckInPanel'
@@ -72,7 +72,7 @@ export default function EventDetailPage() {
     return (
       <div className="empty-state">
         <p>This event doesn’t exist any more.</p>
-        <Link to="/" className="btn btn--primary">
+        <Link to="/dashboard" className="btn btn--primary">
           Back home
         </Link>
       </div>
@@ -123,7 +123,7 @@ export default function EventDetailPage() {
               <PoundSterling size={15} /> {formatMoney(event.amount)} commitment
             </li>
             <li>
-              <Timer size={15} /> {event.graceMinutes} min grace · {event.radius}m radius
+              <Timer size={15} /> {formatGrace(event.graceMinutes)} grace · {event.radius}m radius
             </li>
           </ul>
           {!isAdmin && <p className="event-hero__admin">Organised by {admin.name}</p>}
@@ -266,7 +266,7 @@ export default function EventDetailPage() {
           danger
           onConfirm={() => {
             deleteEvent(event.id)
-            navigate('/')
+            navigate('/dashboard')
           }}
           onClose={() => setConfirmDelete(false)}
         />

@@ -23,7 +23,7 @@ import showupBannerWine from "../assets/showup-banner-wine-cropped.png";
 import showupBanner from "../assets/showup-banner-white-cropped.png";
 
 const LINKS = [
-  { to: "/", label: "Home", icon: House, end: true },
+  { to: "/dashboard", label: "Home", icon: House, end: true },
   { to: "/community", label: "Community", icon: Users },
   { to: "/memories", label: "Memories", icon: Images },
   { to: "/profile", label: "Profile", icon: User },
@@ -150,7 +150,7 @@ export default function NavBar() {
         <button
           type="button"
           className="sidebar__brand"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
           aria-label="show up! home"
         >
           <picture className="sidebar__brand-reveal">

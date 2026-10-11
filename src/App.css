@@ -344,6 +344,20 @@
   box-shadow: 0 6px 14px rgba(125, 42, 61, 0.28);
 }
 
+/* Options share the full width equally, labels on one line */
+.segmented--fill {
+  display: flex;
+  width: 100%;
+}
+
+.segmented--fill button {
+  flex: 1;
+  justify-content: center;
+  padding-left: 6px;
+  padding-right: 6px;
+  white-space: nowrap;
+}
+
 .segmented--small button {
   padding: 6px 14px;
 }
@@ -584,7 +598,7 @@ input[type='range'] {
   font-weight: 500;
 }
 
-.invite-option span {
+.invite-option span:not(.avatar) {
   flex: 1;
 }
 

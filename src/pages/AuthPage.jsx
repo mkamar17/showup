@@ -1,7 +1,7 @@
 // Mock sign up / log in — any password works, only the username matters.
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import authBg from '../assets/auth_bg.svg'
 import showupBannerBlack from '../assets/showup-banner-black-cropped.png'
@@ -11,7 +11,8 @@ import '../styles/auth.css'
 export default function AuthPage() {
   const { login } = useApp()
   const navigate = useNavigate()
-  const [mode, setMode] = useState('login')
+  const [params] = useSearchParams()
+  const [mode, setMode] = useState(params.get('mode') === 'signup' ? 'signup' : 'login')
   const [form, setForm] = useState({ username: '', name: '', email: '', password: '' })
   const [error, setError] = useState('')
 
@@ -37,7 +38,7 @@ export default function AuthPage() {
       setError(result.message)
       return
     }
-    navigate('/')
+    navigate('/dashboard')
   }
 
   return (
@@ -53,6 +54,9 @@ export default function AuthPage() {
 
       <main className="auth__panel">
         <form className="auth__form" onSubmit={submit} noValidate>
+          <Link to="/" className="link-btn auth__back">
+            <ArrowLeft size={16} /> Back to home
+          </Link>
           <div className="auth__brand auth__brand--mobile">
             <img className="auth__brand-logo" src={showupBannerBlack} alt="show up!" />
           </div>

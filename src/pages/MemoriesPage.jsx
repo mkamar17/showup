@@ -96,7 +96,7 @@ export default function MemoriesPage() {
           <strong>No memories yet</strong>
           <p>Show up to an event, take some photos, and they’ll appear here.</p>
           {waiting.length === 0 && (
-            <Link to="/" className="btn btn--primary">
+            <Link to="/dashboard" className="btn btn--primary">
               View events
             </Link>
           )}
