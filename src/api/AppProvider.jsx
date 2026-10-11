@@ -5,18 +5,26 @@ import { AppContext } from './context'
 import { ME_ID, DEMO_GRACE_SPEED } from './constants'
 import { createSeedState } from './seedData'
 import { loadState, saveState, clearState } from './storage'
+import { clearImages, deleteImages } from './photoStore'
 import {
   addNotification,
   addTransaction,
+  applyTransportProtection,
   buildEventTimes,
+  canCancel,
   canCommitInPhase,
+  canMemberCheckIn,
+  cancelEventInState,
   eventReference,
   getPhase,
+  isClosed,
   newMember,
   refundEventInState,
+  settleAt,
   settleEventInState,
 } from './eventLogic'
 import { formatMoney, makeReference, toDateInput, toTimeInput, uid } from './format'
+import { demoTfLStatus, getTfLLineStatus, protectionFor } from './tflApi'
 
 export function AppProvider({ children }) {
   const [state, setState] = useState(() => loadState() ?? createSeedState())
@@ -40,7 +48,7 @@ export function AppProvider({ children }) {
       setNow(n)
       setState((s) => {
         let next = s
-        const due = s.events.filter((e) => !e.settled && n >= e.graceEndsAt)
+        const due = s.events.filter((e) => !isClosed(e) && n >= settleAt(e))
         if (due.length) next = due.reduce((acc, e) => settleEventInState(acc, e.id, n), next)
 
         // Mock Faster Payments: "Pending" → "Completed" after a few seconds.
@@ -106,7 +114,7 @@ export function AppProvider({ children }) {
           },
         },
       }
-      return addNotification(next, `Welcome to Engine, ${displayName}! Add friends, create an event and commit.`, '/community', 'info')
+      return addNotification(next, `Welcome to Show up!, ${displayName}! Add friends, create an event and commit.`, '/community', 'info')
     })
     return { ok: true }
   }
@@ -123,6 +131,7 @@ export function AppProvider({ children }) {
     setLocation(null)
     setLocationStatus('idle')
     clearState()
+    clearImages().catch(() => {})
     const fresh = createSeedState()
     setState((s) => ({
       ...fresh,
@@ -159,14 +168,14 @@ export function AppProvider({ children }) {
                 accountName: s.users[ME_ID].name,
                 accountLast4: '5678',
                 sortLast2: '71',
-                spaceName: 'Engine Commitments',
+                spaceName: 'Show up! Commitments',
                 connectedAt: t,
                 lastSyncedAt: t,
               },
             },
           },
         },
-        'Starling connected — your “Engine Commitments” Space is ready.',
+        'Starling connected — your “Show up! Commitments” Space is ready.',
         '/profile?tab=wallet',
         'success',
       ),
@@ -176,7 +185,7 @@ export function AppProvider({ children }) {
 
   function disconnectStarling() {
     if (me.held > 0) {
-      toast(`${formatMoney(me.held)} is still held in your Engine Space — disconnect after your events settle.`, 'error')
+      toast(`${formatMoney(me.held)} is still held in your Show up! Space — disconnect after your events settle.`, 'error')
       return false
     }
     updateMe((u) => ({ ...u, starling: null }))
@@ -293,6 +302,15 @@ export function AppProvider({ children }) {
     toast(`${ev.title} deleted${heldCount(ev) && !ev.settled ? ' — all commitments refunded' : ''}`)
   }
 
+  // Admin calls the event off before it starts: everyone's money goes back.
+  function cancelEvent(eventId, message) {
+    const ev = state.events.find((e) => e.id === eventId)
+    if (!ev || ev.adminId !== ME_ID || !canCancel(ev, Date.now())) return
+    setState((s) => cancelEventInState(s, eventId, { by: ME_ID, message }, Date.now()))
+    const n = heldCount(ev)
+    toast(`${ev.title} cancelled${n ? ` — ${formatMoney(ev.amount)} returned to ${n} ${n === 1 ? 'person' : 'people'}` : ''}`, 'success')
+  }
+
   function inviteToEvent(eventId, userIds) {
     setState((s) => ({
       ...s,
@@ -309,7 +327,7 @@ export function AppProvider({ children }) {
   }
 
   // "Join & commit £X": moves money from the Starling main account into the
-  // Engine Commitments Space (after the user approves it in the bank app).
+  // Show up! Commitments Space (after the user approves it in the bank app).
   // Returns the payment reference, or null if it couldn't happen.
   function commit(eventId, userId = ME_ID) {
     const ev = state.events.find((e) => e.id === eventId)
@@ -342,7 +360,7 @@ export function AppProvider({ children }) {
         ),
       }
       if (userId === ME_ID) {
-        next = addTransaction(next, { type: 'hold', amount: -e.amount, label: `Committed to ${e.title}`, route: 'Main → Engine Space', reference, eventId })
+        next = addTransaction(next, { type: 'hold', amount: -e.amount, label: `Committed to ${e.title}`, route: 'Main → Show up! Space', reference, eventId })
       } else if (e.adminId === ME_ID) {
         next = addNotification(next, `${u.name} committed ${formatMoney(e.amount)} to ${e.title}.`, `/events/${eventId}`, 'success')
       }
@@ -364,6 +382,7 @@ export function AppProvider({ children }) {
 
   function checkIn(eventId, userId = ME_ID, distance = null) {
     const ev = state.events.find((e) => e.id === eventId)
+    if (!ev || !canMemberCheckIn(ev, userId, Date.now())) return
     setState((s) => {
       let next = {
         ...s,
@@ -413,6 +432,53 @@ export function AppProvider({ children }) {
     toast('Grace period ended — settlement complete', 'success')
   }
 
+  // ---------- TfL delay protection ----------
+  // TfL's answer decides automatically (see protectionFor): a suspension
+  // releases your commitment, delays extend your own deadline. `demoLabel`
+  // pretends TfL returned that status, for presenting on a calm day.
+  async function checkTransportDelay(eventId, lineId, demoLabel = null) {
+    const setDelay = (delay) =>
+      setState((s) => ({
+        ...s,
+        events: s.events.map((e) =>
+          e.id === eventId ? { ...e, members: { ...e.members, [ME_ID]: { ...e.members[ME_ID], delay } } } : e,
+        ),
+      }))
+
+    setDelay({ status: 'checking', lineId, at: Date.now() })
+    try {
+      const tfl = demoLabel ? demoTfLStatus(lineId, demoLabel) : await getTfLLineStatus(lineId)
+      const protection = protectionFor(tfl.label)
+      setState((s) => applyTransportProtection(s, eventId, ME_ID, tfl, protection, Date.now()))
+      if (protection.outcome === 'release') toast(`TfL confirmed ${tfl.label.toLowerCase()}: your commitment is back in your account`, 'success')
+      else if (protection.outcome === 'extend') toast(`TfL confirmed ${tfl.label.toLowerCase()}: you have ${protection.minutes} more minutes`, 'success')
+      else toast(`TfL reports ${tfl.label} on the ${tfl.lineName}`)
+    } catch (error) {
+      setDelay({ status: 'error', lineId, error: error.message, at: Date.now() })
+      toast('Could not reach TfL. Try again.', 'error')
+    }
+  }
+
+  // Clears a "no disruption found" or failed check so another line can be tried.
+  function clearTransportDelay(eventId) {
+    setState((s) => ({
+      ...s,
+      events: s.events.map((e) => {
+        const m = e.members[ME_ID]
+        if (e.id !== eventId || !['none', 'error'].includes(m?.delay?.status)) return e
+        const { delay: _delay, ...rest } = m
+        return { ...e, members: { ...e.members, [ME_ID]: rest } }
+      }),
+    }))
+  }
+
+  // Demo: a friend's line is suspended, so they're excused by TfL.
+  function simulateFriendTransport(eventId, userId, label = 'Suspended', lineId = 'central') {
+    const tfl = demoTfLStatus(lineId, label)
+    setState((s) => applyTransportProtection(s, eventId, userId, tfl, protectionFor(label), Date.now()))
+    toast(`${state.users[userId].name}: TfL reports ${tfl.lineName} ${label.toLowerCase()}`)
+  }
+
   // ---------- Notifications ----------
   const markNotificationRead = (id) =>
     setState((s) => ({ ...s, notifications: s.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)) }))
@@ -425,9 +491,18 @@ export function AppProvider({ children }) {
     toast('Memory saved', 'success')
   }
 
-  function deleteMemory(id) {
-    setState((s) => ({ ...s, memories: s.memories.filter((m) => m.id !== id) }))
-    toast('Memory deleted')
+  // Photo metadata only; the image files are saved by photoStore first.
+  function addPhotos(eventId, photos) {
+    const createdAt = Date.now()
+    const records = photos.map(({ id, width, height }, i) => ({ id, eventId, uploadedBy: ME_ID, width, height, createdAt: createdAt + i }))
+    setState((s) => ({ ...s, photos: [...s.photos, ...records] }))
+  }
+
+  // Uploaders can remove their own photos; the event's admin can remove any.
+  function removePhoto(id) {
+    setState((s) => ({ ...s, photos: s.photos.filter((p) => p.id !== id) }))
+    deleteImages(id).catch(() => {})
+    toast('Photo removed')
   }
 
   // ---------- Location ----------
@@ -484,17 +559,22 @@ export function AppProvider({ children }) {
     createEvent,
     updateEvent,
     deleteEvent,
+    cancelEvent,
     inviteToEvent,
     commit,
     decline,
     checkIn,
     startEventNow,
     endGracePeriod,
+    checkTransportDelay,
+    clearTransportDelay,
+    simulateFriendTransport,
     markNotificationRead,
     markAllRead,
     clearNotifications,
     updateMemory,
-    deleteMemory,
+    addPhotos,
+    removePhoto,
     location,
     locationStatus,
     locationError,

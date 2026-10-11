@@ -1,6 +1,6 @@
-# Engine — Show up, or pay up (frontend prototype)
+# Show up! — Show up, or pay up (frontend prototype)
 
-A React + Vite prototype. Friends commit a small amount of money to an event. You check in at the venue (location-gated) to get it back. No-shows' money is split between the people who turned up.
+A React + Vite prototype of **show up!**. Friends commit a small amount of money to an event. You check in at the venue (location-gated) to get it back. No-shows' money is split between the people who turned up.
 
 There is **no backend**. All data is mock and is saved in your browser's localStorage. **Profile → Reset demo** restores the starting data.
 
@@ -14,6 +14,12 @@ npm run dev
 Then open http://localhost:5173. Requires Node 20.19+ (or 22.12+).
 
 Other scripts: `npm run build`, `npm run preview`, `npm run lint`.
+
+## Brand & theme
+
+- **Palette** (tokens at the top of `src/index.css`): Warm Sand `#F9F6F0` (background), Soft Sage `#A3B899` (secondary/success), Mustard Yellow `#EAB143` (primary accent and buttons), Wine Red `#7D2A3D` (deep accent), Off-Black `#2C2A29` (text).
+- **Fonts:** Pacifico for the "show up!" wordmark and headings, installed via `@fontsource/pacifico` so it works offline. Poppins is used for body text. To try another script font, change `--font-brand` in `src/index.css`.
+- **Logo:** `src/components/Wordmark.jsx` (script lettering with a push-pin as the "!"); `src/assets/logo.svg` is the pin icon.
 
 ## Project structure
 
@@ -41,13 +47,13 @@ src/
 ## Demo script (the "Friday Tennis" scenario)
 
 1. **Sign up** with any username and any password.
-   **Connect Starling (mock):** Profile → Banking → Connect Starling → Continue to Starling → Allow access. This creates an "Engine Commitments" Space. If you skip this step, the first "Connect Starling to commit" button runs the same flow.
+   **Connect Starling (mock):** Profile → Banking → Connect Starling → Continue to Starling → Allow access. This creates an "Show up! Commitments" Space. If you skip this step, the first "Connect Starling to commit" button runs the same flow.
 2. **Community** → add a friend by username, e.g. `codybryan`. Max, Grisha and Levi are already your friends.
 3. **Home → Create event** "Friday Tennis":
    - pick a venue (search, quick pick, or tap the map)
    - set a 150m radius, £5, 10 min grace, and optionally Repeat weekly
    - invite 3 friends
-4. On the event page, click **Join & commit £5** → **Approve in Starling** → **Approve with Face ID**. £5 moves from the Starling main account into the Engine Commitments Space, with a payment reference such as `ENG-FT-1610`.
+4. On the event page, click **Join & commit £5** → **Approve in Starling** → **Approve with Face ID**. £5 moves from the Starling main account into the Show up! Commitments Space, with a payment reference such as `SU-FT-1610`.
 5. Use **Simulate commit** next to each friend. Total held becomes £20.
 6. **Demo controls → Start event now**. The grace period runs sped up (10 min becomes 30s).
 7. **Simulate 420m away**. The button stays locked: "You're 420m away — check-in unlocks within 150m."
@@ -66,7 +72,7 @@ The Banking and Wallet tabs show how the app would work connected to Starling. N
 | In the app | Real Starling equivalent |
 |---|---|
 | Connect Starling (permissions → sign in → allow) | OAuth 2.0 consent |
-| Engine Commitments Space | A savings goal ("Space") in the user's own account |
+| Show up! Commitments Space | A savings goal ("Space") in the user's own account |
 | Commit → approve in bank app | Add money to the Space, with strong customer authentication |
 | Refund at settlement | Withdraw money from the Space back to the main account |
 | Penalty share (Pending → Completed after ~6s) | Faster Payment to each attendee |

@@ -24,22 +24,22 @@
 }
 
 .btn--primary {
-  background: var(--purple);
-  color: #fff;
-  box-shadow: 0 8px 18px rgba(108, 93, 211, 0.3);
+  background: var(--mustard);
+  color: var(--on-mustard);
+  box-shadow: 0 8px 18px rgba(201, 144, 32, 0.32);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--purple-dark);
+  background: #e0a32f;
 }
 
 .btn--soft {
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: var(--wine-soft);
+  color: var(--wine);
 }
 
 .btn--soft:hover:not(:disabled) {
-  background: #e3defd;
+  background: #ecdade;
 }
 
 .btn--ghost {
@@ -107,8 +107,8 @@
 }
 
 .icon-btn:hover {
-  color: var(--purple);
-  background: var(--purple-soft);
+  color: var(--wine);
+  background: var(--wine-soft);
 }
 
 .icon-btn--soft {
@@ -130,7 +130,7 @@
   background: none;
   border: none;
   padding: 0;
-  color: var(--purple);
+  color: var(--wine);
   font-weight: 500;
   font-size: 0.85rem;
   display: inline-flex;
@@ -206,8 +206,8 @@
 }
 
 .pill--soft {
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: var(--wine-soft);
+  color: var(--wine);
 }
 
 .pill--light {
@@ -215,60 +215,85 @@
   color: #fff;
 }
 
-.pill--pink {
-  background: var(--pink);
-  color: #fff;
+.pill--mustard {
+  background: var(--mustard);
+  color: var(--on-mustard);
 }
 
-.pill--pink-soft {
-  background: var(--pink-soft);
-  color: var(--pink-dark);
+.pill--mustard-soft {
+  background: var(--mustard-soft);
+  color: #8a5f0e;
 }
 
 .pill--success {
-  background: var(--green);
+  background: var(--sage);
   color: #fff;
 }
 
 .pill--success-soft {
-  background: var(--green-soft);
-  color: #23934e;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .pill--phase-upcoming {
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: var(--wine-soft);
+  color: var(--wine);
 }
 
 .pill--phase-checkin-open {
-  background: var(--green-soft);
-  color: #23934e;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .pill--phase-grace,
 .pill--phase-settling {
-  background: #fff1df;
-  color: #b86d14;
+  background: var(--mustard-soft);
+  color: #8a5f0e;
 }
 
 .pill--phase-settled {
-  background: #eceef3;
-  color: #5d6175;
+  background: #efe9df;
+  color: #6b645d;
+}
+
+.pill--phase-cancelled {
+  background: var(--red-soft);
+  color: var(--red);
 }
 
 .pill--member-invited {
-  background: #eceef3;
-  color: #5d6175;
+  background: #efe9df;
+  color: #6b645d;
 }
 
 .pill--member-committed {
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: var(--wine-soft);
+  color: var(--wine);
 }
 
 .pill--member-checkedIn {
-  background: var(--green-soft);
-  color: #23934e;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
+}
+
+.pill--phase-overtime {
+  background: var(--mustard);
+  color: var(--on-mustard);
+}
+
+.pill--member-excused {
+  background: var(--sage-soft);
+  color: var(--sage-dark);
+}
+
+.pill--member-delayed {
+  background: var(--mustard-soft);
+  color: #8a5f0e;
+}
+
+.pill--member-refunded {
+  background: var(--surface-2);
+  color: var(--muted);
 }
 
 .pill--member-declined,
@@ -293,8 +318,8 @@
 }
 
 .avatar--more {
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: var(--wine-soft);
+  color: var(--wine);
 }
 
 .avatar-stack {
@@ -312,7 +337,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--sage);
   border: 2px solid var(--surface);
 }
 
@@ -339,9 +364,23 @@
 }
 
 .segmented button.is-active {
-  background: var(--purple);
+  background: var(--wine);
   color: #fff;
-  box-shadow: 0 6px 14px rgba(108, 93, 211, 0.28);
+  box-shadow: 0 6px 14px rgba(125, 42, 61, 0.28);
+}
+
+/* Options share the full width equally, labels on one line */
+.segmented--fill {
+  display: flex;
+  width: 100%;
+}
+
+.segmented--fill button {
+  flex: 1;
+  justify-content: center;
+  padding-left: 6px;
+  padding-right: 6px;
+  white-space: nowrap;
 }
 
 .segmented--small button {
@@ -370,7 +409,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--green);
+  background: var(--sage);
   transition: width 0.4s ease;
 }
 
@@ -440,7 +479,7 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--purple-light);
+  border-color: var(--wine-light);
   background: #fff;
 }
 
@@ -453,7 +492,7 @@ textarea {
 }
 
 input[type='range'] {
-  accent-color: var(--purple);
+  accent-color: var(--wine);
   width: 100%;
 }
 
@@ -536,7 +575,7 @@ input[type='range'] {
 }
 
 .switch:checked {
-  background: var(--purple);
+  background: var(--wine);
 }
 
 .switch:checked::after {
@@ -560,9 +599,9 @@ input[type='range'] {
 
 .chip:hover,
 .chip.is-active {
-  border-color: var(--purple);
-  color: var(--purple);
-  background: var(--purple-soft);
+  border-color: var(--wine);
+  color: var(--wine);
+  background: var(--wine-soft);
 }
 
 .invite-grid {
@@ -584,14 +623,14 @@ input[type='range'] {
   font-weight: 500;
 }
 
-.invite-option span {
+.invite-option span:not(.avatar) {
   flex: 1;
 }
 
 .invite-option.is-selected {
-  border-color: var(--purple);
-  background: var(--purple-soft);
-  color: var(--purple);
+  border-color: var(--wine);
+  background: var(--wine-soft);
+  color: var(--wine);
 }
 
 /* ---------- Venue picker ---------- */
@@ -633,11 +672,11 @@ input[type='range'] {
 }
 
 .venue-picker__results button:hover {
-  background: var(--purple-soft);
+  background: var(--wine-soft);
 }
 
 .venue-picker__results svg {
-  color: var(--purple);
+  color: var(--wine);
   margin-top: 3px;
   flex-shrink: 0;
 }
@@ -664,7 +703,7 @@ input[type='range'] {
 }
 
 .venue-picker__selected svg {
-  color: var(--pink);
+  color: var(--mustard);
 }
 
 /* ---------- Map ---------- */
@@ -687,17 +726,17 @@ input[type='range'] {
   width: 30px;
   height: 30px;
   border-radius: 50% 50% 50% 0;
-  background: var(--pink);
+  background: var(--wine);
   transform: rotate(-45deg);
   border: 3px solid #fff;
-  box-shadow: 0 6px 14px rgba(241, 120, 182, 0.5);
+  box-shadow: 0 6px 14px rgba(125, 42, 61, 0.45);
 }
 
 /* ---------- Modal ---------- */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(30, 26, 60, 0.45);
+  background: rgba(44, 42, 41, 0.45);
   backdrop-filter: blur(3px);
   display: grid;
   place-items: center;
@@ -779,7 +818,7 @@ input[type='range'] {
 }
 
 .dropdown__item:hover {
-  background: var(--purple-soft);
+  background: var(--wine-soft);
 }
 
 .dropdown__item span:last-child {
@@ -797,7 +836,7 @@ input[type='range'] {
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: var(--purple);
+  background: var(--wine);
   color: #fff;
   flex-shrink: 0;
 }
@@ -822,8 +861,8 @@ input[type='range'] {
 }
 
 .pick-list button:hover {
-  border-color: var(--purple);
-  background: var(--purple-soft);
+  border-color: var(--wine);
+  background: var(--wine-soft);
 }
 
 .pick-list span:last-child {
@@ -853,7 +892,7 @@ input[type='range'] {
   gap: 10px;
   padding: 12px 12px 12px 16px;
   border-radius: 16px;
-  background: #2b2b3d;
+  background: #2c2a29;
   color: #fff;
   font-size: 0.88rem;
   box-shadow: var(--shadow-lg);
@@ -893,21 +932,30 @@ input[type='range'] {
 }
 
 .banner--success {
-  background: var(--green-soft);
-  color: #1d7a41;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .banner--info {
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
 }
 
-.banner--purple {
-  background: var(--purple);
+.banner--cancelled {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.banner--cancelled > svg {
+  color: var(--muted);
+}
+
+.banner--wine {
+  background: var(--wine);
   color: #fff;
 }
 
-.banner--purple span {
+.banner--wine span {
   flex: 1;
 }
 
@@ -917,8 +965,8 @@ input[type='range'] {
   align-items: flex-start;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
   font-size: 0.84rem;
   margin-bottom: 18px;
 }
@@ -966,7 +1014,7 @@ input[type='range'] {
 }
 
 .amount--plus {
-  color: #23934e;
+  color: var(--sage-dark);
 }
 
 .amount--minus {

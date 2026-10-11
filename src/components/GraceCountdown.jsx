@@ -1,6 +1,6 @@
 import { Hourglass, Zap } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import { formatCountdown, timeUntil } from '../api/format'
+import { formatCountdown, formatGrace, timeUntil } from '../api/format'
 
 export default function GraceCountdown({ event, phase }) {
   const { now } = useApp()
@@ -47,7 +47,7 @@ export default function GraceCountdown({ event, phase }) {
       </div>
       <strong className="countdown__time">{event.startAt - now < 3600000 ? formatCountdown(event.startAt - now) : timeUntil(event.startAt, now)}</strong>
       <small>
-        Then a {event.graceMinutes}-minute grace period before money moves.
+        Then a {formatGrace(event.graceMinutes)} grace period before money moves.
       </small>
     </section>
   )

@@ -43,6 +43,13 @@ export function formatDateTime(ms) {
   return `${formatDate(ms)} · ${formatTime(ms)}`
 }
 
+// Grace period length: "15 min", or "1 hour" from 60 minutes up.
+export function formatGrace(minutes) {
+  if (minutes < 60) return `${minutes} min`
+  const hours = minutes / 60
+  return `${hours} hour${hours === 1 ? '' : 's'}`
+}
+
 export function relativeTime(ms, now = Date.now()) {
   const diff = Math.round((now - ms) / 1000)
   if (diff < 45) return 'just now'
@@ -92,7 +99,7 @@ export function formatDistance(metres) {
   return `${(metres / 1000).toFixed(1)}km`
 }
 
-// Payment reference shown on Starling statements, e.g. ENG-FT-1610.
+// Payment reference shown on Starling statements, e.g. SU-FT-1610.
 export function makeReference(title, ms) {
   const letters =
     title
@@ -104,5 +111,5 @@ export function makeReference(title, ms) {
       .replace(/[^A-Z0-9]/g, '')
       .slice(0, 4) || 'EVT'
   const d = new Date(ms)
-  return `ENG-${letters}-${pad(d.getDate())}${pad(d.getMonth() + 1)}`
+  return `SU-${letters}-${pad(d.getDate())}${pad(d.getMonth() + 1)}`
 }

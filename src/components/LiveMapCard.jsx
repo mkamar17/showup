@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { MapPinned } from 'lucide-react'
 import { useApp } from '../api/useApp'
+import { isClosed } from '../api/eventLogic'
 import { ME_ID } from '../api/constants'
 import { distanceMetres } from '../api/geo'
 import MapView from './MapView'
@@ -9,7 +10,7 @@ export default function LiveMapCard() {
   const { state, location } = useApp()
   const navigate = useNavigate()
   const next = state.events
-    .filter((e) => !e.settled && e.members[ME_ID]?.status !== 'declined' && e.members[ME_ID])
+    .filter((e) => !isClosed(e) && e.members[ME_ID]?.status !== 'declined' && e.members[ME_ID])
     .sort((a, b) => a.startAt - b.startAt)[0]
 
   return (

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200">
+  <defs>
+    <linearGradient id="bench" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a57a52"/><stop offset="1" stop-color="#7a5636"/></linearGradient>
+  </defs>
+  <rect width="900" height="1200" fill="#e8dfd1"/>
+  <rect y="640" width="900" height="560" fill="url(#bench)"/>
+  <g stroke="#6a4a2e" stroke-width="5" opacity="0.5"><path d="M0 760 L900 760"/><path d="M0 900 L900 900"/><path d="M0 1040 L900 1040"/></g>
+  <g>
+    <path d="M150 560 Q160 420 280 410 L330 410 Q345 520 420 560 Q470 585 470 640 L470 680 L150 680 Z" fill="#7d2a3d"/>
+    <path d="M150 680 L470 680 L470 700 L150 700 Z" fill="#2c2a29"/>
+    <g fill="#2c2a29"><rect x="180" y="700" width="20" height="26" rx="6"/><rect x="260" y="700" width="20" height="26" rx="6"/><rect x="350" y="700" width="20" height="26" rx="6"/><rect x="430" y="700" width="20" height="26" rx="6"/></g>
+    <path d="M300 470 L400 540" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M290 500 L380 560" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(330 140) rotate(8)">
+    <path d="M150 560 Q160 420 280 410 L330 410 Q345 520 420 560 Q470 585 470 640 L470 680 L150 680 Z" fill="#eab143"/>
+    <path d="M150 680 L470 680 L470 700 L150 700 Z" fill="#2c2a29"/>
+    <g fill="#2c2a29"><rect x="180" y="700" width="20" height="26" rx="6"/><rect x="260" y="700" width="20" height="26" rx="6"/><rect x="350" y="700" width="20" height="26" rx="6"/><rect x="430" y="700" width="20" height="26" rx="6"/></g>
+    <path d="M300 470 L400 540" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M290 500 L380 560" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

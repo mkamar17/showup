@@ -17,8 +17,14 @@ export default function NotificationDropdown() {
 
   return (
     <div className="notif" ref={ref}>
-      <button type="button" className="icon-btn icon-btn--soft" onClick={() => setOpen((o) => !o)} aria-label={`Notifications (${unread} unread)`}>
+      <button
+        type="button"
+        className={`notif__trigger${open ? ' is-open' : ''}`}
+        onClick={() => setOpen((o) => !o)}
+        aria-label={`Notifications (${unread} unread)`}
+      >
         <Bell size={20} />
+        <span className="notif__label">Notifications</span>
         {unread > 0 && <span className="notif__badge">{unread > 9 ? '9+' : unread}</span>}
       </button>
       {open && (

@@ -21,7 +21,7 @@ export function PermissionList() {
       ))}
       <li className="perm-list__no">
         <Lock size={17} />
-        <span>Engine never sees your login, card details or other Spaces</span>
+        <span>Show up! never sees your login, card details or other Spaces</span>
       </li>
     </ul>
   )
@@ -45,12 +45,12 @@ export default function StarlingConnectModal({ onClose, onConnected }) {
             <Link2 size={30} />
           </div>
           <h3 className="center">Connect your Starling account</h3>
-          <p className="muted small center">Engine will ask Starling for permission to:</p>
+          <p className="muted small center">Show up! will ask Starling for permission to:</p>
           <PermissionList />
           <button type="button" className="btn btn--primary btn--block btn--lg" onClick={() => setStep('redirect')}>
             <Landmark size={18} /> Continue to Starling
           </button>
-          <p className="muted small center">You’ll sign in and approve on Starling — Engine never sees your password.</p>
+          <p className="muted small center">You’ll sign in and approve on Starling — Show up! never sees your password.</p>
         </div>
       )}
 
@@ -64,8 +64,8 @@ export default function StarlingConnectModal({ onClose, onConnected }) {
 
       {step === 'consent' && (
         <BankApproval
-          notification={{ title: 'Engine wants to connect', body: 'Review what Engine can access' }}
-          title="Allow Engine to access your account?"
+          notification={{ title: 'Show up! wants to connect', body: 'Review what Show up! can access' }}
+          title="Allow Show up! to access your account?"
           rows={[
             { label: 'Account', value: `${me.name} · ••••5678` },
             { label: 'Access', value: 'Balance, 1 Space, payments' },
@@ -90,7 +90,7 @@ export default function StarlingConnectModal({ onClose, onConnected }) {
           </div>
           <h3>Starling connected</h3>
           <p className="muted small">
-            We created a Space called <strong>Engine Commitments</strong> in your Starling account. Money you commit to events is held there.
+            We created a Space called <strong>Show up! Commitments</strong> in your Starling account. Money you commit to events is held there.
           </p>
           <button
             type="button"

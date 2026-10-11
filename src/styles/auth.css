@@ -6,7 +6,7 @@
 }
 
 .auth__hero {
-  background: linear-gradient(150deg, #8b7ff0 0%, var(--purple) 45%, var(--purple-deep) 100%);
+  background: var(--wine);
   color: #fff;
   padding: 48px;
   display: flex;
@@ -34,14 +34,15 @@
   font-size: 1.4rem;
 }
 
-.auth__brand img {
-  border-radius: 14px;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+.auth__brand-logo {
+  display: block;
+  width: min(280px, 100%);
+  height: auto;
 }
 
 .auth__brand--mobile {
   display: none;
-  color: var(--purple);
+  color: var(--wine);
 }
 
 .auth__art {
@@ -63,6 +64,8 @@
 }
 
 .auth__form h2 {
+  font-family: var(--font);
+  font-weight: 700;
   font-size: 1.7rem;
 }
 
@@ -88,8 +91,19 @@
     display: flex;
   }
 
+  .auth__brand-logo {
+    width: 180px;
+  }
+
   .auth__panel {
     align-items: start;
     padding-top: 48px;
   }
+}
+
+.auth__back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }

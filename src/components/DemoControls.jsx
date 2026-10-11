@@ -8,7 +8,7 @@ import ConfirmModal from './ConfirmModal'
 export default function DemoControls({ event, phase }) {
   const { startEventNow, endGracePeriod } = useApp()
   const [confirmEnd, setConfirmEnd] = useState(false)
-  const started = phase === 'grace' || phase === 'settling'
+  const started = ['grace', 'overtime', 'settling'].includes(phase)
   const fastSeconds = Math.round((event.graceMinutes * 60) / DEMO_GRACE_SPEED)
 
   return (

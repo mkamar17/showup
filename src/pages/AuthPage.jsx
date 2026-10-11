@@ -1,16 +1,18 @@
 // Mock sign up / log in — any password works, only the username matters.
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useApp } from '../api/useApp'
-import logo from '../assets/logo.svg'
 import authBg from '../assets/auth_bg.svg'
+import showupBannerBlack from '../assets/showup-banner-black-cropped.png'
+import showupBannerWhite from '../assets/showup-banner-white-cropped.png'
 import '../styles/auth.css'
 
 export default function AuthPage() {
   const { login } = useApp()
   const navigate = useNavigate()
-  const [mode, setMode] = useState('login')
+  const [params] = useSearchParams()
+  const [mode, setMode] = useState(params.get('mode') === 'signup' ? 'signup' : 'login')
   const [form, setForm] = useState({ username: '', name: '', email: '', password: '' })
   const [error, setError] = useState('')
 
@@ -36,15 +38,14 @@ export default function AuthPage() {
       setError(result.message)
       return
     }
-    navigate('/')
+    navigate('/dashboard')
   }
 
   return (
     <div className="auth">
       <aside className="auth__hero">
         <div className="auth__brand">
-          <img src={logo} alt="" width="44" height="44" />
-          <span>Engine</span>
+          <img className="auth__brand-logo" src={showupBannerWhite} alt="show up!" />
         </div>
         <img src={authBg} alt="" className="auth__art" />
         <h1>Show up, or pay up.</h1>
@@ -53,9 +54,11 @@ export default function AuthPage() {
 
       <main className="auth__panel">
         <form className="auth__form" onSubmit={submit} noValidate>
+          <Link to="/" className="link-btn auth__back">
+            <ArrowLeft size={16} /> Back to home
+          </Link>
           <div className="auth__brand auth__brand--mobile">
-            <img src={logo} alt="" width="38" height="38" />
-            <span>Engine</span>
+            <img className="auth__brand-logo" src={showupBannerBlack} alt="show up!" />
           </div>
           <h2>{mode === 'login' ? 'Welcome back' : 'Create your account'}</h2>
           <p className="muted">{mode === 'login' ? 'Log in to see your events.' : 'It only takes a username to get started.'}</p>

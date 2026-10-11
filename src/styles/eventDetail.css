@@ -9,7 +9,7 @@
   display: flex;
   gap: 22px;
   align-items: flex-start;
-  background: var(--purple);
+  background: var(--wine);
   color: #fff;
   border-radius: var(--radius-lg);
   padding: 28px;
@@ -107,7 +107,7 @@
   font-size: 2.6rem;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
-  color: var(--purple);
+  color: var(--wine);
 }
 
 .countdown small {
@@ -115,14 +115,27 @@
 }
 
 .countdown--grace {
-  background: linear-gradient(160deg, #f59ac8 0%, var(--pink) 50%, var(--pink-dark) 100%);
-  color: #fff;
+  background: var(--mustard);
+  color: var(--on-mustard);
 }
 
 .countdown--grace .countdown__label,
 .countdown--grace small,
 .countdown--grace .countdown__time {
-  color: #fff;
+  color: var(--on-mustard);
+}
+
+.countdown--grace .progress--light {
+  background: rgba(44, 42, 41, 0.15);
+}
+
+.countdown--grace .progress--light span {
+  background: var(--ink);
+}
+
+.countdown--grace .pill--light {
+  background: rgba(44, 42, 41, 0.12);
+  color: var(--ink);
 }
 
 /* ---------- Commit card ---------- */
@@ -154,8 +167,8 @@
   margin: 16px 0;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
   font-size: 0.88rem;
   font-weight: 500;
 }
@@ -173,7 +186,7 @@
 }
 
 .commit-card__held > svg {
-  color: var(--purple);
+  color: var(--wine);
 }
 
 .commit-card__held > div {
@@ -203,8 +216,8 @@
   gap: 10px;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: var(--pink-soft);
-  color: var(--pink-dark);
+  background: var(--mustard-soft);
+  color: #8a5f0e;
   font-weight: 500;
   font-size: 0.92rem;
 }
@@ -215,19 +228,147 @@
 }
 
 .checkin__message.is-ok {
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
 }
 
 .checkin__message.is-success {
-  background: var(--green-soft);
-  color: #1d7a41;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .checkin__location {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+/* ---------- TfL delay protection ---------- */
+.delay-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.delay-card .card__head {
+  margin-bottom: 0;
+}
+
+.delay-card__rules {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.84rem;
+}
+
+.delay-card__label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: -5px;
+}
+
+.delay-card__request {
+  margin-top: 2px;
+}
+
+/* Demo: pretend TfL returned a status (live TfL is usually calm) */
+.delay-card__demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.delay-card__demo > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.delay-card__demo .select {
+  width: auto;
+  flex: 1;
+  min-width: 140px;
+  padding: 7px 10px;
+  font-size: 0.84rem;
+}
+
+.delay-card__status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--wine);
+}
+
+.delay-card__status > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.delay-card__status > div {
+  flex: 1;
+}
+
+.delay-card__status h2 {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+
+.delay-card__status p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.delay-card__status strong {
+  color: var(--text);
+}
+
+.delay-card__reason {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.delay-card--release {
+  background: var(--sage-soft);
+}
+
+.delay-card--release .delay-card__status {
+  color: var(--sage-dark);
+}
+
+.delay-card--extend {
+  background: var(--mustard-soft);
+}
+
+.delay-card--extend .delay-card__status {
+  color: #8a5f0e;
+}
+
+.delay-card--none .delay-card__status {
+  color: var(--muted);
+}
+
+.delay-card__spin {
+  animation: delay-card-spin 1s linear infinite;
+}
+
+@keyframes delay-card-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------- Members ---------- */
@@ -237,8 +378,8 @@
   align-items: center;
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  background: var(--purple-soft);
-  color: var(--purple-deep);
+  background: var(--wine-soft);
+  color: var(--wine-deep);
   margin-bottom: 16px;
 }
 
@@ -286,7 +427,7 @@
 
 /* ---------- Demo controls ---------- */
 .demo-controls {
-  border: 2px dashed var(--purple-light);
+  border: 2px dashed var(--wine-light);
   box-shadow: none;
   background: rgba(255, 255, 255, 0.7);
 }
@@ -346,4 +487,35 @@
   .commit-card__actions .btn {
     flex: 1;
   }
+}
+
+/* Memories (after the event): shared photos and the way to add more */
+.event-memory {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.event-memory .card__head {
+  margin-bottom: 0;
+}
+
+.event-memory .card__head .link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.event-memory__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-memory > .btn {
+  align-self: flex-start;
+}
+
+.cancel-event__field {
+  margin-top: 14px;
 }

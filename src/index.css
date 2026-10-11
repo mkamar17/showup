@@ -1,34 +1,41 @@
 /* Design tokens + base styles */
 :root {
-  --purple: #6c5dd3;
-  --purple-dark: #5546c0;
-  --purple-deep: #4b3fa8;
-  --purple-light: #a99ef0;
-  --purple-soft: #eeebff;
-  --pink: #f178b6;
-  --pink-dark: #e05a9f;
-  --pink-soft: #fde7f2;
-  --green: #3dbe6e;
-  --green-soft: #e3f7ea;
-  --red: #e2525c;
-  --red-soft: #fde8ea;
-  --amber: #e39b4b;
+  /* Show up! palette */
+  --sand: #f9f6f0; /* Warm Sand — main background */
+  --sage: #a3b899; /* Soft Sage — secondary / success */
+  --mustard: #eab143; /* Mustard Yellow — primary accent */
+  --wine: #7d2a3d; /* Wine Red — deep accent */
+  --ink: #2c2a29; /* Off-Black — text */
 
-  --bg: #e9eaf3;
+  --wine-dark: #66202f;
+  --wine-deep: #5a1c2b;
+  --wine-light: #b98591;
+  --wine-soft: #f4e8ea;
+  --mustard-dark: #c99020;
+  --mustard-soft: #fbf0d7;
+  --on-mustard: var(--ink);
+  --sage-dark: #56704b;
+  --sage-soft: #e9efe5;
+  --red: #b8322f;
+  --red-soft: #f9e4e2;
+  --amber: #c99020;
+
+  --bg: var(--sand);
   --surface: #ffffff;
-  --surface-2: #f6f6fb;
-  --text: #2b2b3d;
-  --muted: #8e8ea9;
-  --faint: #b9b9cc;
-  --border: #ececf4;
+  --surface-2: #f3efe7;
+  --text: var(--ink);
+  --muted: #827b74;
+  --faint: #bdb5ab;
+  --border: #ece5da;
 
   --radius-lg: 28px;
   --radius: 20px;
   --radius-sm: 12px;
-  --shadow: 0 12px 32px rgba(76, 64, 168, 0.08);
-  --shadow-lg: 0 24px 48px rgba(76, 64, 168, 0.18);
+  --shadow: 0 12px 32px rgba(44, 42, 41, 0.07);
+  --shadow-lg: 0 24px 48px rgba(44, 42, 41, 0.14);
 
   --font: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-brand: 'Pacifico', 'Brush Script MT', cursive;
 
   font-family: var(--font);
   color: var(--text);
@@ -115,7 +122,7 @@ img {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(108, 93, 211, 0.45);
+  outline: 3px solid rgba(125, 42, 61, 0.45);
   outline-offset: 2px;
 }
 
@@ -136,11 +143,49 @@ img {
 }
 
 .accent {
-  color: var(--purple);
+  color: var(--wine);
 }
 
 @media (max-width: 600px) {
   .hide-sm {
     display: none;
   }
+}
+
+/* Brand script font (like the "show up!" logo) for titles */
+.brand-font {
+  font-family: var(--font-brand);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Script headings (matches the logo lettering) */
+.settlement__hero h2,
+.auth__hero h1,
+.auth__form h2,
+.memory-card h3 {
+  font-family: var(--font-brand);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+/* Wordmark */
+.wordmark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.08em;
+  font-family: var(--font-brand);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.wordmark--light {
+  color: #fff;
+}
+
+.wordmark__pin {
+  margin-bottom: 0.12em;
+  transform: rotate(6deg);
 }

@@ -1,10 +1,13 @@
-/* App shell: sidebar nav, top bar, search, notifications */
+/* App shell: sidebar (brand, nav, balance, notifications, profile) */
 .app-shell {
+  --sb-collapsed: 84px; /* 48px of controls + 18px padding either side */
+  --sb-expanded: 260px;
+  --sb-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   gap: 28px;
   min-height: 100vh;
   padding: 24px;
-  max-width: 1560px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -13,7 +16,6 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
 .app-content {
@@ -25,149 +27,189 @@
   position: sticky;
   top: 24px;
   height: calc(100vh - 48px);
-  width: 96px;
+  width: 260px;
   flex-shrink: 0;
-  background: var(--purple);
-  border-radius: 34px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 26px 0;
+  gap: 18px;
+  padding: 26px 18px 18px;
   box-shadow: var(--shadow-lg);
   z-index: 50;
+  overflow-y: auto;
 }
 
-.sidebar__logo {
+.sidebar__brand {
+  position: relative;
   border: none;
-  background: rgba(255, 255, 255, 0.14);
-  border-radius: 18px;
-  padding: 6px;
-  margin-bottom: 24px;
+  background: none;
+  width: 100%;
+  min-height: 64px;
+  padding: 0;
+  text-align: left;
+  color: #fff;
+  overflow: visible;
 }
 
-.sidebar__logo img {
-  border-radius: 14px;
+.sidebar__brand-reveal {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 45px;
+  overflow: hidden;
+  transform: translateX(-50%);
+  transition:
+    width 220ms ease,
+    left 220ms ease,
+    transform 220ms ease;
+}
+
+.sidebar__brand-image {
+  display: block;
+  width: 205px;
+  max-width: none;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Nav links */
+.sidebar__nav {
+  flex: 1;
 }
 
 .sidebar__links {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  flex: 1;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  gap: 6px;
 }
 
 .sidebar__link {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  color: rgba(255, 255, 255, 0.75);
-  border: none;
-  background: transparent;
-  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 500;
+  font-size: 0.92rem;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .sidebar__link:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .sidebar__link.is-active {
-  background: var(--purple-deep);
-  color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: var(--mustard);
+  color: var(--ink);
+  font-weight: 600;
 }
 
-.sidebar__label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-}
-
-.sidebar__logout {
-  padding-top: 0;
-}
-
-/* ---------- Top bar ---------- */
-.topbar {
+/* Bottom block: balance, notifications, profile */
+.sidebar__bottom {
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.topbar__title {
-  flex: 1;
-  min-width: 0;
-}
-
-.topbar__kicker {
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-
-.topbar__actions {
+.sidebar__balance {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.topbar__avatar {
   border: none;
-  background: none;
-  padding: 0;
-  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--mustard);
+  border-radius: 14px;
+  padding: 10px 14px;
+  text-align: left;
 }
 
-.wallet-chip {
-  display: inline-flex;
+.sidebar__balance:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.sidebar__balance-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.sidebar__balance-text small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
+}
+
+.sidebar__balance-text strong {
+  color: #fff;
+  font-size: 0.98rem;
+}
+
+.sidebar__profile {
+  display: flex;
   align-items: center;
   gap: 6px;
-  border: none;
-  background: var(--surface);
-  padding: 10px 14px;
-  border-radius: 14px;
-  font-weight: 600;
-  font-size: 0.88rem;
-  color: var(--purple);
-  box-shadow: var(--shadow);
 }
 
-/* ---------- Search ---------- */
-.searchbar {
-  position: relative;
+.sidebar__me {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 10px;
-  width: min(340px, 32vw);
-  padding: 0 16px;
-  background: var(--surface);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  color: var(--muted);
-}
-
-.searchbar input[type='search'] {
-  width: 100%;
   border: none;
-  border-radius: 0;
-  background: transparent;
-  padding: 13px 0;
-  outline: none;
+  background: none;
+  color: #fff;
+  padding: 8px 6px;
+  border-radius: 14px;
+  text-align: left;
 }
 
-.searchbar input[type='search']:focus {
-  background: transparent;
+.sidebar__me:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.searchbar__results {
-  left: 0;
-  right: 0;
-  color: var(--text);
+.sidebar__me-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.sidebar__me-text strong,
+.sidebar__me-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__me-text small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.74rem;
+}
+
+.sidebar__logout {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.sidebar__logout:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* ---------- Notifications ---------- */
@@ -175,35 +217,54 @@
   position: relative;
 }
 
-.notif > .icon-btn {
-  width: 44px;
-  height: 44px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+.notif__trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  border-radius: 14px;
+  padding: 11px 14px;
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.notif__trigger:hover,
+.notif__trigger.is-open {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.notif__label {
+  flex: 1;
+  text-align: left;
 }
 
 .notif__badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  min-width: 17px;
-  height: 17px;
-  padding: 0 4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
   border-radius: 999px;
-  background: var(--pink);
-  color: #fff;
-  font-size: 0.65rem;
+  background: var(--mustard);
+  color: var(--ink);
+  font-size: 0.68rem;
   font-weight: 700;
   display: grid;
   place-items: center;
-  border: 2px solid var(--surface);
 }
 
+/* Panel opens to the right of the sidebar */
 .notif__panel {
-  right: 0;
-  width: min(370px, calc(100vw - 32px));
-  max-height: 440px;
+  top: auto;
+  bottom: 0;
+  left: calc(100% + 30px);
+  width: 370px;
+  max-height: 480px;
   overflow-y: auto;
+  color: var(--text);
 }
 
 .notif__head {
@@ -237,7 +298,7 @@
 
 .notif__item.is-unread {
   color: var(--text);
-  background: var(--purple-soft);
+  background: var(--wine-soft);
 }
 
 .notif__item small {
@@ -257,89 +318,372 @@
 }
 
 .notif__item.is-unread .notif__dot {
-  background: var(--purple);
+  background: var(--wine);
 }
 
 .notif__item--success.is-unread .notif__dot {
-  background: var(--green);
+  background: var(--sage);
 }
 
 .notif__item--warning.is-unread .notif__dot,
 .notif__item--invite.is-unread .notif__dot {
-  background: var(--pink);
+  background: var(--mustard);
 }
 
-/* ---------- Responsive: bottom tab bar on mobile ---------- */
-@media (max-width: 900px) {
-  .app-shell {
-    padding: 16px 16px 100px;
-    gap: 0;
+.sidebar__toggle {
+  display: none;
+}
+
+/* ---------- Desktop: collapsible rail ----------
+   .sidebar-slot reserves the layout width (rail, or full when pinned).
+   The sidebar inside it grows past the slot on hover/focus, floating over
+   the page, so only pinning pushes the content. */
+@media (min-width: 901px) {
+  .sidebar-slot {
+    flex-shrink: 0;
+    width: var(--sb-collapsed);
+    transition: width 0.25s var(--sb-ease);
+  }
+
+  .sidebar-slot.is-pinned {
+    width: var(--sb-expanded);
   }
 
   .sidebar {
+    width: var(--sb-collapsed);
+    /* The sidebar must not clip the notification panel or the toggle handle */
+    overflow: visible;
+    transition:
+      width 0.25s var(--sb-ease),
+      box-shadow 0.25s;
+  }
+
+  .sidebar.is-expanded {
+    width: var(--sb-expanded);
+  }
+
+  /* Peeking (hover/focus, not pinned) floats above the page: lift it */
+  .sidebar.is-expanded:not(.is-pinned) {
+    box-shadow: 0 28px 64px rgba(44, 42, 41, 0.28);
+  }
+
+  /* Brand grows from the icon to the full banner as the sidebar expands */
+  .sidebar.is-expanded .sidebar__brand-reveal {
+    width: 205px;
+    left: 0;
+    transform: translateX(0);
+  }
+
+  /* Edge handle to pin / unpin: icon-sized, centred on the logo
+     (26px top padding + half of the 64px brand row - half its own height) */
+  .sidebar__toggle {
+    position: absolute;
+    top: 48px;
+    right: -10px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 1px 4px rgba(44, 42, 41, 0.25);
+    transition:
+      background 0.15s,
+      color 0.15s,
+      transform 0.15s;
+  }
+
+  /* Keep a comfortable click target around the small icon */
+  .sidebar__toggle::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+  }
+
+  .sidebar__toggle:hover {
+    background: var(--mustard);
+    transform: scale(1.08);
+  }
+
+  .sidebar__toggle:focus-visible {
+    outline: 2px solid var(--mustard);
+    outline-offset: 2px;
+  }
+
+  /* Rows never wrap or spill: the rail simply clips them while it grows */
+  .sidebar__link,
+  .sidebar__balance,
+  .sidebar__me,
+  .notif__trigger {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .sidebar__link svg,
+  .sidebar__balance svg,
+  .notif__trigger svg,
+  .sidebar .avatar {
+    flex-shrink: 0;
+  }
+
+  /* Labels fade in after the width starts opening, and out straight away */
+  .sidebar__label,
+  .sidebar__balance-text,
+  .sidebar__me-text,
+  .notif__label {
+    opacity: 1;
+    transition: opacity 0.18s 0.06s;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__label,
+  .sidebar:not(.is-expanded) .sidebar__balance-text,
+  .sidebar:not(.is-expanded) .sidebar__me-text,
+  .sidebar:not(.is-expanded) .notif__label {
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 0s;
+  }
+
+  /* Collapsed geometry: the rail's inner width is 48px, so each control is
+     sized to 48px and its icon sits dead centre */
+  .sidebar__balance {
+    padding: 10px 15px;
+  }
+
+  .sidebar__me {
+    transition:
+      padding 0.25s var(--sb-ease),
+      background 0.15s;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__me {
+    padding: 4px;
+  }
+
+  .sidebar:not(.is-expanded) .notif__badge {
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 0.6rem;
+  }
+
+  /* Log out only makes sense with room for it */
+  .sidebar__profile {
+    transition: gap 0.25s var(--sb-ease);
+  }
+
+  .sidebar__logout {
+    overflow: hidden;
+    transition:
+      width 0.25s var(--sb-ease),
+      opacity 0.18s 0.06s,
+      background 0.15s,
+      color 0.15s;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__profile {
+    gap: 0;
+  }
+
+  .sidebar:not(.is-expanded) .sidebar__logout {
+    width: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition-delay: 0s;
+  }
+
+  /* Bridge the gap between the sidebar and its notification panel so moving
+     the mouse across doesn't count as leaving the sidebar */
+  .notif__panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -40px;
+    width: 40px;
+  }
+}
+
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .sidebar-slot,
+  .sidebar,
+  .sidebar *,
+  .sidebar__toggle {
+    transition: none !important;
+  }
+}
+
+/* ---------- Mobile: compact header + bottom tab bar ---------- */
+@media (max-width: 900px) {
+  .app-shell {
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px 16px 100px;
+  }
+
+  /* The slot only exists to reserve desktop width; on mobile it vanishes */
+  .sidebar-slot {
+    display: contents;
+  }
+
+  .sidebar__toggle {
+    display: none;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    width: auto;
+    padding: 4px 0 0;
+    background: transparent;
+    color: var(--text);
+    box-shadow: none;
+    border-radius: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    overflow: visible;
+  }
+
+  .sidebar__brand {
+    order: 1;
+    flex: 0 0 164px;
+    width: 164px;
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .sidebar__brand-reveal {
+    position: static;
+    display: block;
+    width: 164px;
+    overflow: visible;
+    transform: none;
+    transition: none;
+  }
+
+  .sidebar__brand-image {
+    width: 164px;
+  }
+
+  /* Logo on the left, held / notifications / profile pushed to the right */
+  .sidebar__bottom {
+    order: 2;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    padding: 0;
+    border: none;
+  }
+
+  .sidebar__balance {
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    color: var(--wine);
+    padding: 9px 11px;
+  }
+
+  .sidebar__balance-text small {
+    display: none;
+  }
+
+  .sidebar__balance-text strong {
+    color: var(--wine);
+    font-size: 0.82rem;
+  }
+
+  .notif__trigger {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    justify-content: center;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+
+  .notif__trigger:hover,
+  .notif__trigger.is-open {
+    background: var(--surface);
+    color: var(--wine);
+  }
+
+  .notif__label {
+    display: none;
+  }
+
+  .notif__badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    font-size: 0.62rem;
+  }
+
+  .notif__panel {
+    top: calc(100% + 10px);
+    bottom: auto;
+    left: auto;
+    right: -50px;
+    width: min(370px, calc(100vw - 32px));
+  }
+
+  .sidebar__me {
+    padding: 0;
+  }
+
+  .sidebar__me-text,
+  .sidebar__logout {
+    display: none;
+  }
+
+  /* Nav becomes a fixed bottom tab bar */
+  .sidebar__nav {
     position: fixed;
-    top: auto;
     left: 12px;
     right: 12px;
     bottom: 12px;
-    height: 68px;
-    width: auto;
-    flex-direction: row;
-    padding: 0 10px;
+    z-index: 60;
+    background: var(--ink);
     border-radius: 24px;
-  }
-
-  .sidebar__logo {
-    display: none;
+    padding: 8px;
+    box-shadow: var(--shadow-lg);
   }
 
   .sidebar__links {
     flex-direction: row;
     justify-content: space-around;
-    border-top: none;
-    padding: 0;
     gap: 4px;
   }
 
   .sidebar__links li {
     flex: 1;
-    display: flex;
-    justify-content: center;
   }
 
   .sidebar__link {
-    width: 52px;
-    height: 48px;
-    border-radius: 16px;
+    justify-content: center;
+    padding: 12px 0;
   }
 
-  .sidebar__logout {
+  .sidebar__label {
     display: none;
-  }
-
-  .topbar {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .topbar h1 {
-    font-size: 1.4rem;
-  }
-
-  .searchbar {
-    order: 3;
-    width: 100%;
   }
 }
 
-@media (max-width: 480px) {
-  .wallet-chip {
-    padding: 8px 10px;
-    font-size: 0.8rem;
-  }
-
-  .topbar__avatar .avatar {
-    width: 38px !important;
-    height: 38px !important;
+@media (max-width: 420px) {
+  .sidebar__balance-text {
+    display: none;
   }
 }

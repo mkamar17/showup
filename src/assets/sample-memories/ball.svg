@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fa060"/><stop offset="1" stop-color="#456b34"/></linearGradient>
+    <radialGradient id="ball" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#ffffff"/><stop offset="0.7" stop-color="#e7e3dc"/><stop offset="1" stop-color="#b9b2a8"/></radialGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#grass)"/>
+  <g stroke="#5f8a4a" stroke-width="6" opacity="0.55">
+    <path d="M0 120 L1200 160"/><path d="M0 300 L1200 330"/><path d="M0 480 L1200 500"/><path d="M0 660 L1200 670"/><path d="M0 840 L1200 845"/>
+  </g>
+  <ellipse cx="610" cy="700" rx="230" ry="40" fill="#2d4523" opacity="0.45"/>
+  <circle cx="600" cy="470" r="230" fill="url(#ball)"/>
+  <g fill="#2c2a29">
+    <path d="M600 380 L660 424 L637 494 L563 494 L540 424 Z"/>
+    <path d="M760 360 L810 420 L800 470 L745 455 L725 395 Z" opacity="0.9"/>
+    <path d="M440 360 L475 395 L455 455 L400 470 L390 420 Z" opacity="0.9"/>
+    <path d="M520 610 L590 600 L615 655 L560 690 L500 660 Z" opacity="0.85"/>
+    <path d="M700 600 L740 640 L700 680 L650 655 L660 605 Z" opacity="0.8"/>
+  </g>
+</svg>

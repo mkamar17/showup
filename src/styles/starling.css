@@ -18,7 +18,7 @@
 }
 
 .bank-bar--prompt {
-  border: 2px dashed var(--purple-light);
+  border: 2px dashed var(--wine-light);
   box-shadow: none;
 }
 
@@ -63,15 +63,15 @@
 }
 
 .bank-bar__sync:hover {
-  color: var(--purple);
+  color: var(--wine);
 }
 
 .connected-pill {
   display: inline-flex !important;
   align-items: center;
   gap: 5px;
-  background: var(--green-soft);
-  color: #23934e !important;
+  background: var(--sage-soft);
+  color: var(--sage-dark) !important;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 0.72rem !important;
@@ -112,7 +112,7 @@
 }
 
 .perm-list__ok svg {
-  color: var(--green);
+  color: var(--sage);
 }
 
 .perm-list__no {
@@ -144,16 +144,16 @@
 }
 
 .connect-step__icon--ok {
-  background: var(--green-soft);
-  color: #23934e;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .spinner {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 4px solid var(--purple-soft);
-  border-top-color: var(--purple);
+  border: 4px solid var(--wine-soft);
+  border-top-color: var(--wine);
   animation: spin 0.8s linear infinite;
 }
 
@@ -311,8 +311,8 @@
   flex-shrink: 0;
 }
 
-.money-src__icon--pink {
-  background: var(--pink);
+.money-src__icon--mustard {
+  background: var(--mustard);
 }
 
 .commit-flow__outcomes {
@@ -334,7 +334,7 @@
 }
 
 .amount--plus {
-  color: #23934e;
+  color: var(--sage-dark);
 }
 
 .amount--minus {
@@ -365,13 +365,13 @@
   font-size: 1.15rem;
 }
 
-.before-after__box--pink {
-  background: var(--pink);
-  color: #fff;
+.before-after__box--mustard {
+  background: var(--mustard);
+  color: var(--on-mustard);
 }
 
-.before-after__box--pink small {
-  color: #fff;
+.before-after__box--mustard small {
+  color: var(--on-mustard);
   opacity: 0.85;
 }
 
@@ -397,8 +397,14 @@ code,
 /* ---------- Spaces ---------- */
 .spaces-row {
   display: grid;
-  grid-template-columns: 1fr 1.25fr 1fr;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
   gap: 18px;
+}
+
+@media (max-width: 1200px) {
+  .spaces-row {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .space-card {
@@ -433,13 +439,13 @@ code,
   background: var(--surface);
 }
 
-.space-card--pink {
-  background: linear-gradient(160deg, #f59ac8 0%, var(--pink) 55%, var(--pink-dark) 100%);
-  color: #fff;
+.space-card--mustard {
+  background: var(--mustard);
+  color: var(--on-mustard);
 }
 
-.space-card--purple {
-  background: var(--purple);
+.space-card--wine {
+  background: var(--wine);
   color: #fff;
 }
 
@@ -473,14 +479,14 @@ code,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 14px;
   padding: 9px 12px;
   font-size: 0.82rem;
 }
 
 .space-breakdown a:hover {
-  background: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .space-breakdown small {
@@ -508,15 +514,15 @@ code,
   top: 22px;
   left: 56px;
   right: 14px;
-  border-top: 2px dashed var(--purple-light);
+  border-top: 2px dashed var(--wine-light);
 }
 
 .money-flow__icon {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--purple-soft);
-  color: var(--purple);
+  background: var(--wine-soft);
+  color: var(--wine);
   display: grid;
   place-items: center;
 }
@@ -527,7 +533,7 @@ code,
 }
 
 .money-flow__step .ok {
-  color: #23934e;
+  color: var(--sage-dark);
 }
 
 .money-flow__step .bad {
@@ -536,7 +542,7 @@ code,
 
 .money-flow__step code {
   background: var(--surface-2);
-  color: var(--purple-deep);
+  color: var(--wine-deep);
   padding: 3px 8px;
   border-radius: 8px;
   font-size: 0.68rem;
@@ -570,8 +576,8 @@ code,
 }
 
 .activity__icon.is-in {
-  background: var(--green-soft);
-  color: #23934e;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .activity__icon.is-out {
@@ -580,8 +586,8 @@ code,
 }
 
 .activity__icon.is-wait {
-  background: #fff1df;
-  color: #b86d14;
+  background: var(--mustard-soft);
+  color: #8a5f0e;
 }
 
 .activity__desc {
@@ -622,13 +628,13 @@ code,
 }
 
 .status-pill--done {
-  background: var(--green-soft);
-  color: #23934e;
+  background: var(--sage-soft);
+  color: var(--sage-dark);
 }
 
 .status-pill--pending {
-  background: #fff1df;
-  color: #b86d14;
+  background: var(--mustard-soft);
+  color: #8a5f0e;
 }
 
 .activity__ref {
@@ -662,10 +668,13 @@ code,
   margin-top: 2px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   .spaces-row {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 900px) {
 
   .money-flow {
     grid-template-columns: 1fr 1fr;

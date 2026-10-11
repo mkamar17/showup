@@ -33,7 +33,7 @@ export default function CommitModal({ event, onClose }) {
             </span>
           </div>
           <div className="money-src">
-            <span className="money-src__icon money-src__icon--pink">
+            <span className="money-src__icon money-src__icon--mustard">
               <Lock size={16} />
             </span>
             <span>
@@ -63,8 +63,8 @@ export default function CommitModal({ event, onClose }) {
 
       {step === 'approve' && (
         <BankApproval
-          notification={{ title: 'Approve a transfer from Engine', body: `${formatMoney(event.amount)} into your “${sb.spaceName}” Space` }}
-          title="Engine wants to move money"
+          notification={{ title: 'Approve a transfer from Show up!', body: `${formatMoney(event.amount)} into your “${sb.spaceName}” Space` }}
+          title="Show up! wants to move money"
           rows={[
             { label: 'Amount', value: formatMoney(event.amount) },
             { label: 'From', value: 'Main account' },
@@ -101,8 +101,8 @@ export default function CommitModal({ event, onClose }) {
               <small>was {formatMoney(before.main)}</small>
             </div>
             <ArrowRight size={18} className="muted" />
-            <div className="before-after__box before-after__box--pink">
-              <small>Engine Space</small>
+            <div className="before-after__box before-after__box--mustard">
+              <small>Show up! Space</small>
               <strong>{formatMoney(before.space + event.amount)}</strong>
               <small>was {formatMoney(before.space)}</small>
             </div>

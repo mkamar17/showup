@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, CircleCheck, Clock, Heart, Repeat } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CircleCheck, Clock, Heart, Repeat, TrainFront } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID, PAYMENT_SETTLE_MS } from '../api/constants'
 import { formatDateTime, formatMoney } from '../api/format'
@@ -117,6 +117,29 @@ export default function SettlementPage() {
           )}
         </section>
 
+        {s.excused?.length > 0 && (
+          <section className="card settlement__excused">
+            <h3 className="card__title">
+              <TrainFront size={18} /> Excused by TfL
+            </h3>
+            <ul className="result-rows">
+              {s.excused.map((id) => {
+                const why = event.members[id]?.excused
+                return (
+                  <li key={id}>
+                    <Avatar user={user(id)} size={38} />
+                    <span className="result-rows__text">
+                      <strong>{nameOf(id)}</strong>
+                      <small>{why ? `${why.lineName}: ${why.label}, so their commitment was released` : 'Released by TfL protection'}</small>
+                    </span>
+                    <strong className="amount">{formatMoney(event.amount)} back</strong>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
+
         <section className="card settlement__transfers">
           <h3 className="card__title">Transfer breakdown</h3>
           <table className="table">
@@ -159,36 +182,10 @@ export default function SettlementPage() {
           </table>
           {s.transfers.some((t) => t.kind === 'penalty') && (
             <p className="muted small">
-              Refunds come straight back from each person’s Engine Space. Penalties are sent by Faster Payment and split equally; any leftover
+              Refunds come straight back from each person’s Show up! Space. Penalties are sent by Faster Payment and split equally; any leftover
               penny goes to one attendee so the totals match exactly. Reference {eventReference(event)}.
             </p>
           )}
-        </section>
-
-        <section className="card">
-          <h3 className="card__title">Updated balances</h3>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th className="num">Starling main</th>
-                <th className="num">Engine Space</th>
-              </tr>
-            </thead>
-            <tbody>
-              {s.committed.map((id) => (
-                <tr key={id}>
-                  <td>
-                    <span className="table__person">
-                      <Avatar user={user(id)} size={26} /> {nameOf(id)}
-                    </span>
-                  </td>
-                  <td className="num">{formatMoney(user(id).balance)}</td>
-                  <td className="num">{formatMoney(user(id).held)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </section>
 
         {memory && (
@@ -201,8 +198,8 @@ export default function SettlementPage() {
               <button type="button" className="btn btn--primary" onClick={() => updateMemory(memory.id, note.trim())}>
                 Save memory
               </button>
-              <Link to="/memories" className="btn btn--ghost">
-                See all memories
+              <Link to={`/memories/${event.id}`} className="btn btn--ghost">
+                Add photos
               </Link>
             </div>
           </section>
@@ -210,7 +207,7 @@ export default function SettlementPage() {
       </div>
 
       {nextInSeries && (
-        <Link to={`/events/${nextInSeries.id}`} className="banner banner--purple">
+        <Link to={`/events/${nextInSeries.id}`} className="banner banner--wine">
           <Repeat size={20} />
           <span>
             <strong>Next {event.title}</strong> is scheduled for {formatDateTime(nextInSeries.startAt)}

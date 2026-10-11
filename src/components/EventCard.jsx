@@ -54,7 +54,7 @@ export default function EventCard({ event }) {
         <span className="muted small">
           {settled ? `${event.settlement.attendees.length}/${counts.committed} attended` : `${counts.committed}/${counts.total} · ${formatMoney(event.amount)} each`}
         </span>
-        <span className={`pill ${myStatus === 'invited' && !settled ? 'pill--pink' : 'pill--pink-soft'}`}>
+        <span className={`pill ${myStatus === 'invited' && !settled ? 'pill--mustard' : 'pill--mustard-soft'}`}>
           {settled ? 'Settled' : myStatus === 'invited' ? 'Respond' : daysLeftLabel(event.startAt, now)}
         </span>
       </div>

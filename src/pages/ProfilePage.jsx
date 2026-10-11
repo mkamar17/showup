@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowDownLeft, Eye, Landmark, Lock, LogOut, RotateCcw, Send, ShieldCheck, Unlink } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, Landmark, Lock, LogOut, RotateCcw, Send, ShieldCheck, Undo2, Unlink } from 'lucide-react'
 import { useApp } from '../api/useApp'
 import { ME_ID } from '../api/constants'
 import { formatDateTime, formatMoney, relativeTime } from '../api/format'
+import { isClosed, moneyRecord } from '../api/eventLogic'
 import Avatar from '../components/Avatar'
 import ConfirmModal from '../components/ConfirmModal'
 import StarlingBar from '../components/StarlingBar'
@@ -97,7 +98,7 @@ function BankingTab() {
             </div>
           </dl>
           <h3 className="card__title" style={{ marginTop: 22 }}>
-            Engine can
+            Show up! can
           </h3>
           <PermissionList />
           <div className="form-actions" style={{ marginTop: 18 }}>
@@ -111,7 +112,7 @@ function BankingTab() {
           <h3 className="card__title">Why connect a bank?</h3>
           <p className="muted small" style={{ marginBottom: 16 }}>
             When you commit to an event, the money moves into a Space inside your own Starling account and stays there until the event is
-            settled. Engine asks for these permissions:
+            settled. Show up! asks for these permissions:
           </p>
           <PermissionList />
         </section>
@@ -123,7 +124,7 @@ function BankingTab() {
       {confirmDisconnect && (
         <ConfirmModal
           title="Disconnect Starling?"
-          message="You won’t be able to commit to events until you reconnect. Money still held in your Engine Space must settle first."
+          message="You won’t be able to commit to events until you reconnect. Money still held in your Show up! Space must settle first."
           confirmLabel="Disconnect"
           danger
           onConfirm={disconnectStarling}
@@ -135,36 +136,26 @@ function BankingTab() {
 }
 
 function WalletTab() {
-  const { me, state, now, toast, demoAddFunds, disconnectStarling } = useApp()
+  const { me, state, toast, demoAddFunds, disconnectStarling } = useApp()
   const [confirmDisconnect, setConfirmDisconnect] = useState(false)
   const sb = me.starling
-  const won = state.transactions.filter((t) => t.type === 'payout').reduce((sum, t) => sum + t.amount, 0)
+  const record = moneyRecord(state.events, ME_ID)
   const heldEvents = state.events
-    .filter((e) => !e.settled && e.members[ME_ID]?.status === 'committed')
+    .filter((e) => !isClosed(e) && e.members[ME_ID]?.status === 'committed')
     .sort((a, b) => a.startAt - b.startAt)
 
   return (
     <div className="wallet">
       <StarlingBar />
 
+      {/* Your show up! money: what's at stake now, then your track record */}
       <div className="spaces-row">
-        <div className="space-card space-card--white">
+        <div className="space-card space-card--mustard">
           <span className="space-card__label">
-            <Landmark size={18} /> Starling main account
-          </span>
-          <strong className="space-card__amount">{sb ? formatMoney(me.balance) : '—'}</strong>
-          <small className="muted">{sb ? `Live balance · synced ${relativeTime(sb.lastSyncedAt, now)}` : 'Connect Starling to see your balance'}</small>
-          <span className="space-card__tag">
-            <Eye size={12} /> Read-only in Engine
-          </span>
-        </div>
-
-        <div className="space-card space-card--pink">
-          <span className="space-card__label">
-            <Lock size={18} /> Engine Commitments Space
+            <Lock size={18} /> Held now
           </span>
           <strong className="space-card__amount">{formatMoney(me.held)}</strong>
-          <small>A Space inside your Starling account · held until settlement</small>
+          <small>In your Show up! Space inside Starling · held until settlement</small>
           <div className="space-breakdown">
             {heldEvents.length === 0 && <p>Nothing held right now</p>}
             {heldEvents.map((e) => (
@@ -179,15 +170,35 @@ function WalletTab() {
           </div>
         </div>
 
-        <div className="space-card space-card--purple">
+        <div className="space-card space-card--white">
           <span className="space-card__label">
-            <ArrowDownLeft size={18} /> Won from no-shows
+            <Undo2 size={18} /> Returned
           </span>
-          <strong className="space-card__amount">{formatMoney(won)}</strong>
-          <small>Paid into your main account</small>
+          <strong className="space-card__amount">{formatMoney(record.returned)}</strong>
+          <small className="muted">
+            Showed up {record.showedUp} time{record.showedUp === 1 ? '' : 's'} · commitments back in your main account
+          </small>
+        </div>
+
+        <div className="space-card space-card--wine">
+          <span className="space-card__label">
+            <ArrowDownLeft size={18} /> Earned
+          </span>
+          <strong className="space-card__amount">{formatMoney(record.earned)}</strong>
+          <small>Your share from friends who didn’t show</small>
           <span className="space-card__tag">
             <Send size={12} /> Faster Payments
           </span>
+        </div>
+
+        <div className="space-card space-card--white">
+          <span className="space-card__label">
+            <ArrowUpRight size={18} /> Lost
+          </span>
+          <strong className="space-card__amount">{formatMoney(record.lost)}</strong>
+          <small className="muted">
+            {record.missed === 0 ? 'Never missed an event — nice' : `Missed ${record.missed} event${record.missed === 1 ? '' : 's'} · paid to those who came`}
+          </small>
         </div>
       </div>
 
@@ -196,7 +207,7 @@ function WalletTab() {
 
       <section className="card bank-actions">
         <span className="bank-actions__note">
-          <ShieldCheck size={16} /> Engine can only move money into and out of your Engine Space, and pay attendees after an event you
+          <ShieldCheck size={16} /> Show up! can only move money into and out of your Show up! Space, and pay attendees after an event you
           committed to.
         </span>
         <button type="button" className="btn btn--ghost btn--sm" onClick={() => demoAddFunds(2000)} disabled={!sb} title="Demo only">
@@ -216,7 +227,7 @@ function WalletTab() {
       {confirmDisconnect && (
         <ConfirmModal
           title="Disconnect Starling?"
-          message="You won’t be able to commit to events until you reconnect. Money still held in your Engine Space must settle first."
+          message="You won’t be able to commit to events until you reconnect. Money still held in your Show up! Space must settle first."
           confirmLabel="Disconnect"
           danger
           onConfirm={disconnectStarling}
